@@ -1,0 +1,9 @@
+{
+  "appId": "com.williamtotaro.gunduelarena",
+  "appName": "Gun Duel Arena",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  }
+}

@@ -31,6 +31,14 @@ jobs:
       - name: Inicializar Plataforma Android
         run: |
           npx cap add android
+
+      - name: Gerar Ícones e Splash Screens
+        run: |
+          mkdir -p resources
+          npx cordova-res android --skip-config --copy
+
+      - name: Sincronizar Plataforma Android
+        run: |
           npx cap sync android
 
       - name: Dar permissão ao Gradle

@@ -24,17 +24,24 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Instalar Dependências
-        run: npm install
+      - name: Instalar Dependências e Ferramentas de Imagem
+        run: |
+          sudo apt-get update && sudo apt-get install -y imagemagick
+          npm install
+
+      - name: Normalizar Imagem do Ícone
+        run: |
+          mkdir -p resources
+          # Remove todos os chunks e metadados corrompidos do PNG
+          mogrify -strip -format png resources/icon.png || true
 
       - name: Inicializar Plataforma Android
         run: |
           npx cap add android
 
-      - name: Gerar Ícones e Splash Screens
+      - name: Gerar Ícones Android
         run: |
-          mkdir -p resources
-          npx cordova-res android --skip-config --copy
+          npx cordova-res android --skip-config --copy --icon-only
 
       - name: Sincronizar Plataforma Android
         run: |

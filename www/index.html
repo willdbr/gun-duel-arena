@@ -1,9 +1,6 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Gun Duel Arena - Etapa 4 Polimento</title>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Gun Duel Arena</title>
+<meta name="color-scheme" content="dark">
   <style>
     * {
       box-sizing: border-box;
@@ -17,6 +14,8 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
+      overscroll-behavior: none;
+      touch-action: manipulation;
       background: #070b12;
       font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       color: #fff;
@@ -35,9 +34,8 @@
       width: 100%;
       height: 100%;
       display: block;
+      touch-action: none;
     }
-
-    /* OVERLAYS & TELAS */
     .screen-overlay {
       position: absolute;
       top: 0;
@@ -48,8 +46,7 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      background: rgba(7, 11, 18, 0.95);
-      backdrop-filter: blur(8px);
+      background: rgba(7, 11, 18, 0.97);
       z-index: 50;
       padding: 18px;
       transition: opacity 0.2s ease;
@@ -57,7 +54,6 @@
     .hidden {
       display: none !important;
     }
-
     h1 {
       font-size: 2.1rem;
       font-weight: 900;
@@ -124,8 +120,6 @@
       font-size: 0.76rem;
       border-radius: 8px;
     }
-
-    /* HUD SUPERIOR */
     #hud {
       position: absolute;
       top: 0;
@@ -222,8 +216,6 @@
       border-radius: 10px;
       margin-left: 6px;
     }
-
-    /* BOTÕES DE HABILIDADES ATIVAS */
     #skills-action-bar {
       position: absolute;
       bottom: 20px;
@@ -291,7 +283,6 @@
       height: 0%;
       background: rgba(15, 23, 42, 0.85);
       border-top: 2px solid #f43f5e;
-      transition: height 0.1s linear;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -299,8 +290,6 @@
       font-weight: 900;
       color: #f43f5e;
     }
-
-    /* MENSAGENS SUSPENSAS */
     .countdown-layer {
       position: absolute;
       top: 40%;
@@ -329,8 +318,6 @@
       pointer-events: none;
       text-align: center;
     }
-
-    /* REPLAY SLOW-MO OVERLAY */
     #replay-banner {
       position: absolute;
       top: 25px;
@@ -356,8 +343,6 @@
       from { transform: translateX(-50%) scale(0.96); opacity: 0.85; }
       to { transform: translateX(-50%) scale(1.04); opacity: 1; }
     }
-
-    /* NOTIFICAÇÃO TOAST */
     #toast-notification {
       position: absolute;
       top: 55px;
@@ -380,8 +365,6 @@
       opacity: 1;
       transform: translateX(-50%) translateY(4px);
     }
-
-    /* MODAL DE TELAS E ABAS (LOJA, MISSÕES, CONFIGS) */
     .modal-scroll-body {
       flex: 1;
       overflow-y: auto;
@@ -427,8 +410,6 @@
       border-color: #38bdf8;
       color: #fff;
     }
-
-    /* CONFIGURAÇÕES FORM */
     .setting-row {
       display: flex;
       justify-content: space-between;
@@ -465,8 +446,6 @@
       border-color: #34d399;
       color: #fff;
     }
-
-    /* UPGRADES */
     .upgrades-container {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -540,22 +519,40 @@
     .boss-card:not(.locked):hover {
       border-color: #f43f5e;
     }
+      .score-rounds { min-width: 0; }
+    #rival-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px; }
+    .pause-btn {
+      position: absolute;
+      bottom: 20px;
+      left: 12px;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid #334155;
+      color: #e2e8f0;
+      font-size: 1.05rem;
+      font-weight: 800;
+      z-index: 26;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .pause-btn:active { transform: scale(0.92); }
   </style>
-</head>
-<body>
+
+
   <div id="game-container">
     <canvas id="canvas"></canvas>
 
-    <!-- NOTIFICAÇÃO TOAST -->
     <div id="toast-notification">Mensagem</div>
 
-    <!-- REPLAY INDICATOR -->
     <div id="replay-banner" class="hidden">
       <span>● REC</span>
       <span>SLOW-MOTION REPLAY</span>
     </div>
 
-    <!-- HUD SUPERIOR -->
     <div id="hud" class="hidden">
       <div class="hud-top-bar">
         <div class="score-rounds">
@@ -585,7 +582,6 @@
       </div>
     </div>
 
-    <!-- BOTÕES DE HABILIDADES ATIVAS (HUD) -->
     <div id="skills-action-bar" class="hidden">
       <div class="skill-btn" id="btn-skill-dash">
         <span class="key-hint">Q</span>
@@ -607,11 +603,10 @@
       </div>
     </div>
 
-    <!-- MENSAGENS SUSPENSAS E CONTAGEM -->
     <div id="countdown-display" class="countdown-layer hidden">3</div>
     <div id="round-banner" class="floating-banner hidden">ROUND 1</div>
+    <button class="pause-btn hidden" id="btn-pause" aria-label="Pausar">⏸</button>
 
-    <!-- MENU PRINCIPAL -->
     <div id="main-menu" class="screen-overlay">
       <h1>GUN DUEL</h1>
       <p class="subtitle">BATALHA AÉREA DE RECUO • COMPLETO</p>
@@ -631,7 +626,6 @@
       </div>
     </div>
 
-    <!-- SUBMENU DUELO SOLO: DIFICULDADE & PERFIL IA -->
     <div id="solo-config-menu" class="screen-overlay hidden">
       <h1>DUELO SOLO</h1>
       <p class="subtitle">Configure a Inteligência Artificial rival</p>
@@ -652,7 +646,6 @@
       </div>
     </div>
 
-    <!-- SUBMENU CAMPANHA (5 CHEFES) -->
     <div id="campaign-menu" class="screen-overlay hidden">
       <h1 style="color:#f43f5e;">CAMPANHA DOS 5 CHEFES</h1>
       <p class="subtitle">Derrote cada chefe e domine suas arenas</p>
@@ -660,7 +653,6 @@
       <button class="game-btn" id="btn-back-campaign" style="width:100%; max-width:340px; margin-top:10px;">⬅ VOLTAR AO MENU</button>
     </div>
 
-    <!-- SUBMENU MISSÕES E CONQUISTAS -->
     <div id="missions-modal" class="screen-overlay hidden">
       <div style="width:100%; max-width:360px; height:85%; display:flex; flex-direction:column;">
         <div class="shop-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
@@ -676,7 +668,6 @@
       </div>
     </div>
 
-    <!-- SUBMENU RANKING LOCAL -->
     <div id="ranking-modal" class="screen-overlay hidden">
       <div style="width:100%; max-width:350px; height:80%; display:flex; flex-direction:column;">
         <h1>RANKING LOCAL</h1>
@@ -686,7 +677,6 @@
       </div>
     </div>
 
-    <!-- SUBMENU CONFIGURAÇÕES (ETAPA 4) -->
     <div id="settings-modal" class="screen-overlay hidden">
       <div style="width:100%; max-width:350px; height:85%; display:flex; flex-direction:column;">
         <h1>CONFIGURAÇÕES</h1>
@@ -724,7 +714,6 @@
             </div>
           </div>
 
-          <!-- APAGAR PROGRESSO COM CONFIRMAÇÃO INLINE -->
           <div class="modal-card" style="border-color: rgba(239, 68, 68, 0.4);">
             <h4 style="color:#ef4444; font-size:0.9rem;">Zona de Perigo</h4>
             <p style="font-size:0.73rem; color:#94a3b8;">Reinicia moedas, armas, conquistas e recordes salvos.</p>
@@ -744,17 +733,15 @@
       </div>
     </div>
 
-    
-    <!-- SUBMENU MULTIPLAYER ONLINE P2P (ETAPA 5 CUSTO ZERO) -->
     <div id="online-modal" class="screen-overlay hidden">
       <div style="width:100%; max-width:350px; display:flex; flex-direction:column; gap:12px;">
         <h1 style="color:#38bdf8; font-size:1.8rem;">DUELO ONLINE</h1>
         <p class="subtitle" style="margin-bottom:12px;">Conexão Direta P2P • Custo Zero</p>
-        
+
         <div id="online-choice-box" class="btn-group" style="max-width:100%;">
           <button class="game-btn primary" id="btn-create-room">👑 CRIAR SALA PRIVADA</button>
           <div style="display:flex; gap:6px; margin-top:4px;">
-            <input type="text" id="join-room-input" placeholder="CÓDIGO (EX: 4821)" maxlength="6" 
+            <input type="text" id="join-room-input" placeholder="CÓDIGO (EX: 4821)" maxlength="6"
                    style="flex:1; padding:10px; border-radius:10px; border:1px solid #334155; background:#1e293b; color:#fff; font-weight:800; text-align:center; text-transform:uppercase; font-size:0.95rem;">
             <button class="game-btn accent" id="btn-join-room" style="padding:10px 16px;">ENTRAR</button>
           </div>
@@ -771,7 +758,6 @@
       </div>
     </div>
 
-    <!-- LOJA: ARMAS, UPGRADES, SKINS E RASTOS -->
     <div id="shop-modal" class="screen-overlay hidden">
       <div style="width:100%; max-width:380px; height:88%; display:flex; flex-direction:column;">
         <div class="shop-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
@@ -788,7 +774,16 @@
       </div>
     </div>
 
-    <!-- TELA DE FIM DE PARTIDA / VITÓRIA / DERROTA -->
+    <div id="pause-modal" class="screen-overlay hidden">
+      <h1>PAUSADO</h1>
+      <p class="subtitle">Esc ou P também pausam o jogo</p>
+      <div class="btn-group">
+        <button class="game-btn primary" id="btn-resume">▶ CONTINUAR</button>
+        <button class="game-btn warning" id="btn-pause-restart">↻ REINICIAR PARTIDA</button>
+        <button class="game-btn" id="btn-pause-menu">MENU PRINCIPAL</button>
+      </div>
+    </div>
+
     <div id="game-over-screen" class="screen-overlay hidden">
       <h1 id="game-over-title">VITÓRIA!</h1>
       <p class="subtitle" id="game-over-subtitle">Você dominou os céus da arena!</p>
@@ -803,9 +798,18 @@
   </div>
 
   <script>
-    /* ==========================================================
-       ÁUDIO PROCEDURAL SINTETIZADO COM TRILHA DINÂMICA
-       ========================================================== */
+    if (typeof CanvasRenderingContext2D !== 'undefined' && !CanvasRenderingContext2D.prototype.roundRect) {
+      CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+        const rr = Math.min(Array.isArray(r) ? r[0] : (r || 0), w / 2, h / 2);
+        this.moveTo(x + rr, y);
+        this.arcTo(x + w, y, x + w, y + h, rr);
+        this.arcTo(x + w, y + h, x, y + h, rr);
+        this.arcTo(x, y + h, x, y, rr);
+        this.arcTo(x, y, x + w, y, rr);
+        this.closePath();
+      };
+    }
+
     const AudioManager = {
       ctx: null,
       masterGain: null,
@@ -884,6 +888,14 @@
 
       setDanger(isDanger) {
         this.dangerMode = isDanger;
+      },
+
+      suspend() {
+        if (this.ctx && this.ctx.state === 'running') this.ctx.suspend().catch(() => {});
+      },
+
+      resume() {
+        if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
       },
 
       playShoot(type = 'pistol') {
@@ -1025,9 +1037,6 @@
       }
     };
 
-    /* ==========================================================
-       CATÁLOGO DE ARMAS
-       ========================================================== */
     const GUN_CATALOG = [
       { id: 'pistol', name: 'Pistola Básica', desc: 'Ágil e equilibrada.', cost: 0, recoil: 8.2, lift: 3.2, rotKick: 0.38, fireRate: 260, type: 'pistol', auto: false, bulletSpeed: 14, baseDamage: 1 },
       { id: 'magnum', name: 'Magnum .44', desc: 'Impacto pesado e recuo vigoroso.', cost: 150, recoil: 11.2, lift: 4.2, rotKick: 0.48, fireRate: 420, type: 'magnum', auto: false, bulletSpeed: 16, baseDamage: 2 },
@@ -1063,9 +1072,22 @@
       { id: 5, title: 'Lorde Supremo da Arena', trickName: 'Escudo Supremo & Lasers', trickDesc: 'Escudos periódicos invulneráveis e disparos duplos velozes.', hp: 20, color: '#ef4444', detail: '#991b1b', gunId: 'laser', profile: 'UNPREDICTABLE', reward: 300 }
     ];
 
-    /* ==========================================================
-       ESTADO GLOBAL & CONFIGURAÇÕES (COM TRY/CATCH)
-       ========================================================== */
+    const MISSION_POOL = [
+      { id: 'hits', title: 'Atirador Preciso', desc: 'Acerte 25 tiros no adversário', target: 25, reward: 50 },
+      { id: 'shots', title: 'Dedo no Gatilho', desc: 'Dispare 80 tiros', target: 80, reward: 40 },
+      { id: 'skills', title: 'Mestre Tático', desc: 'Use habilidades ativas 6 vezes', target: 6, reward: 60 },
+      { id: 'dash', title: 'Relâmpago', desc: 'Use o Dash 4 vezes', target: 4, reward: 40 },
+      { id: 'grenade', title: 'Granadeiro', desc: 'Lance 3 granadas', target: 3, reward: 45 },
+      { id: 'shield', title: 'Muralha', desc: 'Ative o Escudo 3 vezes', target: 3, reward: 45 },
+      { id: 'wins', title: 'Dominador dos Céus', desc: 'Vença 3 partidas em qualquer modo', target: 3, reward: 80 },
+      { id: 'rounds', title: 'Round a Round', desc: 'Vença 5 rounds', target: 5, reward: 60 },
+      { id: 'streaks', title: 'Sequência Perfeita', desc: 'Faça 2 sequências de 5 acertos', target: 2, reward: 70 },
+      { id: 'targets', title: 'Tiro ao Alvo', desc: 'Acerte 15 alvos no Modo Treino', target: 15, reward: 50 },
+      { id: 'barrels', title: 'Pavio Curto', desc: 'Detone 3 barris de TNT', target: 3, reward: 50 },
+      { id: 'waves', title: 'Resistência', desc: 'Vença 3 ondas na Sobrevivência', target: 3, reward: 90 },
+      { id: 'boss', title: 'Caçador de Chefes', desc: 'Derrote um chefe da Campanha', target: 1, reward: 100 }
+    ];
+
     const State = {
       coins: 100,
       equippedGun: 'pistol',
@@ -1086,7 +1108,7 @@
       settings: {
         volume: 80,
         vibration: true,
-        sensitivity: 100 // 1.0x
+        sensitivity: 100
       },
 
       init() {
@@ -1122,12 +1144,17 @@
 
           const sett = localStorage.getItem('gda_settings');
           if (sett) this.settings = Object.assign(this.settings, JSON.parse(sett));
-
-          this.initDailyMissions();
         } catch(e) {}
+        this.initDailyMissions();
       },
 
       save() {
+        clearTimeout(this._saveT);
+        this._saveT = setTimeout(() => this.flush(), 400);
+      },
+
+      flush() {
+        clearTimeout(this._saveT);
         try {
           localStorage.setItem('gda_coins', this.coins);
           localStorage.setItem('gda_equipped_gun', this.equippedGun);
@@ -1180,8 +1207,9 @@
         this.currentWinStreak = 0;
         this.bossBestTimes = {};
         this.achievements = {};
+        this.dailyMissions = null;
         this.initDailyMissions();
-        this.save();
+        this.flush();
       },
 
       getTodayDateKey() {
@@ -1191,25 +1219,42 @@
 
       initDailyMissions() {
         const today = this.getTodayDateKey();
+        if (this.dailyMissions && this.dailyMissions.date === today && this.dailyMissions.version === 2) return;
         try {
           const stored = localStorage.getItem('gda_daily_missions');
           if (stored) {
             const parsed = JSON.parse(stored);
-            if (parsed.date === today) {
+            if (parsed.date === today && parsed.version === 2) {
               this.dailyMissions = parsed;
               return;
             }
           }
         } catch(e) {}
-        this.dailyMissions = {
-          date: today,
-          list: [
-            { id: 'hits', title: 'Atirador Preciso', desc: 'Acerte 20 tiros no adversário', target: 20, progress: 0, reward: 50, claimed: false },
-            { id: 'skills', title: 'Mestre Tático', desc: 'Use habilidades ativas 6 vezes', target: 6, progress: 0, reward: 60, claimed: false },
-            { id: 'wins', title: 'Dominador dos Céus', desc: 'Vença 3 partidas em qualquer modo', target: 3, progress: 0, reward: 80, claimed: false }
-          ]
+        this.dailyMissions = this.generateDailyMissions(today);
+        this.flush();
+      },
+
+      generateDailyMissions(dateKey) {
+        let seed = 2166136261;
+        for (const ch of dateKey) {
+          seed ^= ch.charCodeAt(0);
+          seed = Math.imul(seed, 16777619);
+        }
+        seed >>>= 0;
+        const rand = () => {
+          seed = (seed + 0x6D2B79F5) | 0;
+          let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
         };
-        this.save();
+        const pool = MISSION_POOL.slice();
+        for (let i = pool.length - 1; i > 0; i--) {
+          const j = Math.floor(rand() * (i + 1));
+          [pool[i], pool[j]] = [pool[j], pool[i]];
+        }
+        const list = pool.slice(0, 5).map(m => ({ ...m, progress: 0, claimed: false }));
+        list.push({ id: 'bonus', title: 'Bônus do Dia', desc: 'Resgate todas as missões de hoje', target: list.length, progress: 0, reward: 120, claimed: false });
+        return { date: dateKey, version: 2, list };
       },
 
       trackMission(missionId, amount = 1) {
@@ -1242,6 +1287,8 @@
       }
     };
     State.init();
+    window.addEventListener('pagehide', () => State.flush());
+    document.addEventListener('visibilitychange', () => { if (document.hidden) State.flush(); });
 
     const SKILLS_CONFIG = {
       dash: { id: 'dash', name: 'Dash', cd: 6000 },
@@ -1249,9 +1296,6 @@
       shield: { id: 'shield', name: 'Escudo', cd: 10000 }
     };
 
-    /* ==========================================================
-       CLASSE GUN (COM DELTA TIME E SENSIBILIDADE)
-       ========================================================== */
     class Gun {
       constructor(isPlayer, config, isLocalP2 = false) {
         this.isPlayer = isPlayer;
@@ -1271,7 +1315,7 @@
         this.squashX = 1;
         this.squashY = 1;
         this.flashTime = 0;
-        this.radius = 22;
+        this.radius = 28;
 
         this.shieldTimer = 0;
         this.dashTimer = 0;
@@ -1323,6 +1367,7 @@
 
         if (now - this.lastShotTime < stats.fireRate) return false;
         this.lastShotTime = now;
+        if (this.isPlayer) State.trackMission('shots', 1);
 
         const sensMult = this.isPlayer ? (State.settings.sensitivity / 100) : 1.0;
 
@@ -1334,11 +1379,11 @@
         this.squashX = 0.82;
         this.squashY = 1.25;
 
-        const muzzleDist = 28;
+        const muzzleDist = 36;
         const bx = this.x + Math.cos(this.angle) * muzzleDist;
         const by = this.y + Math.sin(this.angle) * muzzleDist;
 
-        const trailCfg = this.isPlayer 
+        const trailCfg = this.isPlayer
           ? (COSMETIC_TRAILS.find(t => t.id === State.equippedTrail) || COSMETIC_TRAILS[0])
           : COSMETIC_TRAILS[0];
 
@@ -1373,7 +1418,7 @@
         AudioManager.playSkillSound('dash');
         arena.createFloatText(this.x, this.y - 25, 'DASH!', '#38bdf8');
 
-        if (this.isPlayer) State.trackMission('skills', 1);
+        if (this.isPlayer) { State.trackMission('skills', 1); State.trackMission('dash', 1); }
         return true;
       }
 
@@ -1382,7 +1427,7 @@
         if (now < this.cooldowns.grenade) return false;
         this.cooldowns.grenade = now + SKILLS_CONFIG.grenade.cd;
 
-        const muzzleDist = 28;
+        const muzzleDist = 36;
         const gx = this.x + Math.cos(this.angle) * muzzleDist;
         const gy = this.y + Math.sin(this.angle) * muzzleDist;
 
@@ -1390,7 +1435,7 @@
         AudioManager.playSkillSound('grenade');
         arena.createFloatText(this.x, this.y - 25, 'GRANADA!', '#f59e0b');
 
-        if (this.isPlayer) State.trackMission('skills', 1);
+        if (this.isPlayer) { State.trackMission('skills', 1); State.trackMission('grenade', 1); }
         return true;
       }
 
@@ -1403,7 +1448,7 @@
         AudioManager.playSkillSound('shield');
         arena.createFloatText(this.x, this.y - 25, 'ESCUDO!', '#10b981');
 
-        if (this.isPlayer) State.trackMission('skills', 1);
+        if (this.isPlayer) { State.trackMission('skills', 1); State.trackMission('shield', 1); }
         return true;
       }
 
@@ -1419,7 +1464,6 @@
         this.flashTime = 10;
         arena.triggerScreenShake(7);
 
-        // Vibração háptica no celular
         if (this.isPlayer && State.settings.vibration && typeof navigator !== 'undefined' && navigator.vibrate) {
           try {
             if (isCrit || amount > 1) {
@@ -1495,10 +1539,9 @@
         ctx.save();
         ctx.translate(this.x, this.y);
 
-        // Efeito visual do Escudo Ativo
         if (this.shieldTimer > 0) {
           ctx.beginPath();
-          ctx.arc(0, 0, 36, 0, Math.PI * 2);
+          ctx.arc(0, 0, 46, 0, Math.PI * 2);
           ctx.fillStyle = 'rgba(16, 185, 129, 0.2)';
           ctx.fill();
           ctx.strokeStyle = '#10b981';
@@ -1506,7 +1549,7 @@
           ctx.stroke();
         }
 
-        ctx.scale(this.squashX, this.squashY);
+        ctx.scale(this.squashX * 1.3, this.squashY * 1.3);
         ctx.rotate(this.angle);
 
         let bodyColor = this.customPrimary || (this.isPlayer ? '#38bdf8' : '#f43f5e');
@@ -1785,10 +1828,6 @@
       }
     }
 
-
-    /* ==========================================================
-       CLASSE BULLET
-       ========================================================== */
     class Bullet {
       constructor(x, y, angle, speed, isPlayer, gunType, damage, trailConfig, isCrit = false) {
         this.x = x;
@@ -1923,9 +1962,6 @@
       }
     }
 
-    /* ==========================================================
-       BARREIRAS, BARRIS, ALVOS, PARTÍCULAS
-       ========================================================== */
     class Barrier {
       constructor(x, y, w, h, isTemp = false, life = 360) {
         this.x = x;
@@ -1998,6 +2034,7 @@
             bullet.y >= this.y && bullet.y <= this.y + this.h) {
           this.alive = false;
           bullet.alive = false;
+          if (bullet.isPlayer) State.trackMission('barrels', 1);
           arena.detonateBarrel(this.x + this.w / 2, this.y + this.h / 2);
           return true;
         }
@@ -2055,6 +2092,7 @@
           arena.createSparkParticles(this.x, this.y);
           arena.createFloatText(this.x, this.y - 15, '+100 ALVO!', '#fbbf24');
           State.trackMission('hits', 1);
+          State.trackMission('targets', 1);
           State.unlockAchievement('first_blood', 'Primeiro Sangue', 'Acertou um alvo em treino', 30);
           return true;
         }
@@ -2130,13 +2168,6 @@
       }
     }
 
-    /* ==========================================================
-       CONTROLADOR PRINCIPAL DA ARENA
-       ========================================================== */
-    
-    /* ==========================================================
-       ETAPA 5: SINALIZAÇÃO P2P CUSTO ZERO (MQTT NATIVO + WEBRTC)
-       ========================================================== */
     class MiniMqttClient {
       constructor(url, clientId) {
         this.url = url;
@@ -2253,9 +2284,11 @@
       setupDataChannel(channel) {
         this.dc = channel;
         this.dc.onopen = () => {
+          clearTimeout(this._brokerTimeout);
+          clearTimeout(this._handshakeTimeout);
           this.connected = true;
           this.arena.showToast('Conectado P2P com sucesso!');
-          if (this.mqtt) this.mqtt.close(); // Fecha o broker de sinalização; P2P puro assume!
+          if (this.mqtt) this.mqtt.close();
           document.getElementById('online-modal').classList.add('hidden');
           this.arena.startOnlineMatch(this.isHost);
           this.startSyncLoop();
@@ -2283,7 +2316,6 @@
         this.roomCode = Math.floor(1000 + Math.random() * 9000).toString();
         this.initPeerConnection();
 
-        // Host cria o DataChannel
         const dc = this.pc.createDataChannel('gda_duel', { ordered: false });
         this.setupDataChannel(dc);
 
@@ -2310,7 +2342,6 @@
           document.getElementById('online-room-code-display').innerText = this.roomCode;
           document.getElementById('online-status-msg').innerText = 'Localizando o host da sala...';
 
-          // Notifica o host que o cliente entrou
           setTimeout(() => {
             this.mqtt.publish(`gda/duel/${this.roomCode}`, JSON.stringify({
               from: this.myClientId,
@@ -2321,21 +2352,33 @@
       }
 
       connectBroker(onReady) {
-        // Broker MQTT WSS público gratuito com failover
         const brokerUrl = 'wss://broker.emqx.io:8084/mqtt';
         this.mqtt = new MiniMqttClient(brokerUrl, this.myClientId);
 
+        clearTimeout(this._brokerTimeout);
+        this._brokerTimeout = setTimeout(() => {
+          this.arena.showToast('Online indisponível: sem acesso ao servidor de sinalização.');
+          this.cancel();
+        }, 7000);
+
         this.mqtt.onConnect = () => {
+          clearTimeout(this._brokerTimeout);
+          clearTimeout(this._handshakeTimeout);
+          this._handshakeTimeout = setTimeout(() => {
+            if (!this.connected) {
+              this.arena.showToast('Não foi possível conectar com o rival.');
+              this.cancel();
+            }
+          }, 20000);
           if (onReady) onReady();
         };
 
         this.mqtt.onMessage = (topic, payload) => {
           try {
             const msg = JSON.parse(payload);
-            if (msg.from === this.myClientId) return; // ignora mensagens próprias
+            if (msg.from === this.myClientId) return;
 
             if (msg.type === 'join' && this.isHost) {
-              // Cria Offer SDP
               this.pc.createOffer().then(offer => {
                 return this.pc.setLocalDescription(offer);
               }).then(() => {
@@ -2375,6 +2418,8 @@
 
       cancel() {
         clearInterval(this.syncInterval);
+        clearTimeout(this._brokerTimeout);
+        clearTimeout(this._handshakeTimeout);
         if (this.mqtt) this.mqtt.close();
         if (this.pc) {
           try { this.pc.close(); } catch(e) {}
@@ -2400,7 +2445,6 @@
           if (!this.connected || this.arena.state !== 'PLAYING') return;
 
           if (this.isHost) {
-            // O Host envia o snapshot autoritativo da partida a 20 Hz
             this.send({
               type: 'sync',
               p1: { x: this.arena.player1.x, y: this.arena.player1.y, angle: this.arena.player1.angle, hp: this.arena.player1.hp },
@@ -2412,9 +2456,8 @@
 
       handleRemoteData(data) {
         if (data.type === 'sync' && !this.isHost) {
-          // O convidado sincroniza posições e vida
           if (this.arena.player1 && data.p1) {
-            this.arena.player2.x = data.p1.x; // Inverte visão (p1 remoto é o rival p2 local)
+            this.arena.player2.x = data.p1.x;
             this.arena.player2.y = data.p1.y;
             this.arena.player2.angle = data.p1.angle;
             this.arena.player2.hp = data.p1.hp;
@@ -2423,8 +2466,7 @@
             this.arena.player1.hp = data.p2.hp;
           }
         } else if (data.type === 'action') {
-          // Disparos e skills acionados pelo adversário
-          const remoteGun = this.isHost ? this.arena.player2 : this.arena.player2;
+          const remoteGun = this.arena.player2;
           if (remoteGun) {
             if (data.action === 'shoot') remoteGun.shoot(this.arena);
             else if (data.action === 'dash') remoteGun.useDash(this.arena);
@@ -2445,7 +2487,7 @@
         this.gameMode = 'SOLO';
         this.difficulty = 'MEDIUM';
         this.aiProfile = 'DEFENSIVE';
-        this.state = 'MENU'; // 'MENU', 'COUNTDOWN', 'PLAYING', 'SLOWMO_REPLAY', 'ROUND_OVER', 'MATCH_OVER'
+        this.state = 'MENU';
         this.shopTab = 'GUNS';
 
         this.player1 = null;
@@ -2471,12 +2513,39 @@
         this.isP1Holding = false;
         this.isP2Holding = false;
 
-        // Buffer de Replay Câmera Lenta (últimos 2s = 120 snapshots)
         this.replayBuffer = [];
         this.replayPlaybackIndex = 0;
         this.replaySlowmoCounter = 0;
 
-        // Delta time
+        this.p2p = null;
+        this.stateT = 0;
+        this.cdStage = 0;
+        this.pendingP1Won = false;
+        this.prePauseState = 'MENU';
+        this.replayT = 0;
+        this.replayEnd = 0;
+        this.dpr = 1;
+        this.hudCache = {};
+        const $ = (id) => document.getElementById(id);
+        this.el = {
+          countdown: $('countdown-display'),
+          roundBanner: $('round-banner'),
+          replayBanner: $('replay-banner'),
+          hud: $('hud'),
+          skillsBar: $('skills-action-bar'),
+          pauseBtn: $('btn-pause'),
+          pauseModal: $('pause-modal'),
+          p1Bar: $('player-hp-bar'),
+          p2Bar: $('rival-hp-bar'),
+          p1Dots: Array.from(document.querySelectorAll('#p1-rounds .dot')),
+          p2Dots: Array.from(document.querySelectorAll('#p2-rounds .dot')),
+          skills: [
+            { key: 'dash', btn: $('btn-skill-dash'), ov: $('cd-dash'), k: -1 },
+            { key: 'grenade', btn: $('btn-skill-grenade'), ov: $('cd-grenade'), k: -1 },
+            { key: 'shield', btn: $('btn-skill-shield'), ov: $('cd-shield'), k: -1 }
+          ]
+        };
+
         this.lastFrameTime = performance.now();
 
         this.resize();
@@ -2487,36 +2556,139 @@
 
       resize() {
         const container = document.getElementById('game-container');
-        this.width = container.clientWidth;
-        this.height = container.clientHeight;
-        this.canvas.width = this.width;
-        this.canvas.height = this.height;
-        this.rebuildArenaObjects();
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const w = container.clientWidth;
+        const h = container.clientHeight;
+        if (w === this.width && h === this.height && dpr === this.dpr) return;
+
+        const pw = this.width;
+        const ph = this.height;
+        this.width = w;
+        this.height = h;
+        this.dpr = dpr;
+        this.canvas.width = Math.round(w * dpr);
+        this.canvas.height = Math.round(h * dpr);
+        this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        if (this.state === 'MENU' || this.state === 'COUNTDOWN' || this.state === 'MATCH_OVER' || pw <= 0 || ph <= 0) {
+          this.rebuildArenaObjects();
+        } else {
+          const rx = w / pw;
+          const ry = h / ph;
+          this.barriers.forEach(b => { b.x *= rx; b.y *= ry; b.w *= rx; });
+          this.barrels.forEach(b => { b.x *= rx; b.y *= ry; });
+          this.targets.forEach(t => { t.originX *= rx; t.originY *= ry; t.x *= rx; t.y *= ry; });
+          [this.player1, this.player2].forEach(g => { if (g) { g.x *= rx; g.y *= ry; } });
+        }
       }
 
       rebuildArenaObjects() {
         this.barriers = [];
         this.barrels = [];
         this.targets = [];
-        if (this.height <= 0) return;
+        if (this.height <= 0 || this.width <= 0) return;
 
         if (this.gameMode === 'TRAINING') {
-          this.barriers.push(new Barrier((this.width - 100) / 2, this.height * 0.58, 100, 16));
+          this.barriers.push(new Barrier((this.width - 110) / 2, this.height * 0.58, 110, 16));
           this.targets.push(new TargetDummy(this.width * 0.25, this.height * 0.35, false));
           this.targets.push(new TargetDummy(this.width * 0.75, this.height * 0.35, false));
           this.targets.push(new TargetDummy(this.width * 0.5, this.height * 0.25, true));
-        } else {
-          const bw = 110;
-          const bh = 18;
-          this.barriers.push(new Barrier((this.width - bw) / 2, this.height * 0.52, bw, bh));
-          this.barriers.push(new Barrier(this.width * 0.12, this.height * 0.36, 68, 16));
-          this.barriers.push(new Barrier(this.width * 0.88 - 68, this.height * 0.36, 68, 16));
+          return;
+        }
 
-          if (this.gameMode === 'CAMPAIGN' && this.currentBossIndex === 2) {
-            this.barrels.push(new Barrel(this.width * 0.2, this.height * 0.36 - 32));
-            this.barrels.push(new Barrel(this.width * 0.8 - 26, this.height * 0.36 - 32));
+        // ================= GERAÇÃO PROCEDURAL / ALEATÓRIA DE MAPAS =================
+        const W = this.width;
+        const H = this.height;
+
+        // Escolhe aleatoriamente um arquétipo dinâmico de arena
+        const archetypes = ['SPLIT_ISLANDS', 'VERTICAL_BUNKER', 'FLOATING_CROSS', 'STAGGERED_PLATFORMS', 'CENTRAL_FORTRESS'];
+        const chosen = archetypes[Math.floor(Math.random() * archetypes.length)];
+
+        const clamp = (val, min, max) => Math.max(min, Math.min(max, val));
+
+        if (chosen === 'SPLIT_ISLANDS') {
+          // Duas ilhas suspensas com alturas alternadas e vão central para duelos verticais
+          const w1 = clamp(W * (0.2 + Math.random() * 0.08), 65, 110);
+          const w2 = clamp(W * (0.2 + Math.random() * 0.08), 65, 110);
+          const y1 = H * (0.38 + (Math.random() - 0.5) * 0.1);
+          const y2 = H * (0.54 + (Math.random() - 0.5) * 0.1);
+
+          this.barriers.push(new Barrier(W * 0.1, y1, w1, 16));
+          this.barriers.push(new Barrier(W * 0.9 - w2, y2, w2, 16));
+
+          // Barril no vão ou sobre a ilha mais alta
+          if (Math.random() > 0.3) {
+            this.barrels.push(new Barrel(W * 0.1 + w1 / 2 - 13, y1 - 32));
           }
-          this.barrels.push(new Barrel((this.width - 26) / 2, this.height * 0.52 - 32));
+          if (Math.random() > 0.4) {
+            this.barrels.push(new Barrel(W * 0.9 - w2 / 2 - 13, y2 - 32));
+          }
+
+        } else if (chosen === 'VERTICAL_BUNKER') {
+          // Coberturas laterais simétricas + barreira intermediária
+          const bw = clamp(W * 0.26, 75, 120);
+          const sideW = clamp(W * 0.18, 55, 80);
+          const yCenter = H * 0.5;
+          const ySide = H * 0.34;
+
+          this.barriers.push(new Barrier((W - bw) / 2, yCenter, bw, 18));
+          this.barriers.push(new Barrier(W * 0.08, ySide, sideW, 16));
+          this.barriers.push(new Barrier(W * 0.92 - sideW, ySide, sideW, 16));
+
+          this.barrels.push(new Barrel((W - 26) / 2, yCenter - 32));
+          if (Math.random() > 0.5) {
+            this.barrels.push(new Barrel(W * 0.08 + sideW / 2 - 13, ySide - 32));
+          }
+
+        } else if (chosen === 'FLOATING_CROSS') {
+          // 3 plataformas escalonadas em formato de pirâmide/cruz
+          const pw = clamp(W * 0.22, 60, 95);
+          const yTop = H * 0.36;
+          const yBot1 = H * 0.56;
+          const yBot2 = H * 0.56;
+
+          this.barriers.push(new Barrier((W - pw) / 2, yTop, pw, 16));
+          this.barriers.push(new Barrier(W * 0.12, yBot1, pw, 16));
+          this.barriers.push(new Barrier(W * 0.88 - pw, yBot2, pw, 16));
+
+          this.barrels.push(new Barrel((W - 26) / 2, yTop - 32));
+
+        } else if (chosen === 'STAGGERED_PLATFORMS') {
+          // Plataformas assimétricas dinâmicas
+          const pCount = 3 + Math.floor(Math.random() * 2); // 3 ou 4 barreiras
+          for (let i = 0; i < pCount; i++) {
+            const pw = clamp(W * (0.18 + Math.random() * 0.1), 58, 95);
+            const px = (i % 2 === 0) 
+              ? W * 0.08 + Math.random() * (W * 0.15) 
+              : W * 0.55 + Math.random() * (W * 0.15);
+            const py = H * (0.32 + (i / pCount) * 0.32) + (Math.random() - 0.5) * 15;
+            this.barriers.push(new Barrier(clamp(px, 15, W - pw - 15), clamp(py, 80, H - 90), pw, 16));
+          }
+          // 1 ou 2 barris aleatórios em plataformas
+          const bIdx = Math.floor(Math.random() * this.barriers.length);
+          const bar = this.barriers[bIdx];
+          this.barrels.push(new Barrel(bar.x + bar.w / 2 - 13, bar.y - 32));
+
+        } else {
+          // CENTRAL_FORTRESS: grande plataforma no centro e plataformas de topo
+          const fw = clamp(W * 0.35, 100, 160);
+          const fy = H * 0.52;
+          this.barriers.push(new Barrier((W - fw) / 2, fy, fw, 20));
+
+          const tw = clamp(W * 0.18, 55, 80);
+          this.barriers.push(new Barrier(W * 0.1, H * 0.35, tw, 16));
+          this.barriers.push(new Barrier(W * 0.9 - tw, H * 0.35, tw, 16));
+
+          this.barrels.push(new Barrel((W - 26) / 2, fy - 32));
+          if (Math.random() > 0.5) {
+            this.barrels.push(new Barrel(W * 0.1 + tw / 2 - 13, H * 0.35 - 32));
+          }
+        }
+
+        // Se for o chefe Dinamitador na campanha, adiciona TNTs extras!
+        if (this.gameMode === 'CAMPAIGN' && this.currentBossIndex === 2) {
+          this.barrels.push(new Barrel(W * 0.18, H * 0.42));
+          this.barrels.push(new Barrel(W * 0.82 - 26, H * 0.42));
         }
       }
 
@@ -2531,7 +2703,6 @@
       }
 
       setupDOM() {
-        // Navegação
         document.getElementById('btn-menu-solo').onclick = () => {
           AudioManager.init();
           document.getElementById('main-menu').classList.add('hidden');
@@ -2554,7 +2725,7 @@
         document.querySelectorAll('#solo-config-menu button[data-profile]').forEach(btn => {
           btn.onclick = (e) => {
             this.gameMode = 'SOLO';
-            this.aiProfile = e.target.getAttribute('data-profile');
+            this.aiProfile = e.currentTarget.getAttribute('data-profile');
             document.getElementById('solo-config-menu').classList.add('hidden');
             this.startMatch();
           };
@@ -2592,6 +2763,41 @@
           this.startMatch();
         };
 
+        // Online
+        document.getElementById('btn-menu-online').onclick = () => {
+          AudioManager.init();
+          document.getElementById('main-menu').classList.add('hidden');
+          document.getElementById('online-modal').classList.remove('hidden');
+        };
+        document.getElementById('btn-back-online').onclick = () => {
+          if (this.p2p) this.p2p.cancel();
+          document.getElementById('online-modal').classList.add('hidden');
+          document.getElementById('main-menu').classList.remove('hidden');
+        };
+        document.getElementById('btn-cancel-online').onclick = () => {
+          if (this.p2p) this.p2p.cancel();
+        };
+        document.getElementById('btn-create-room').onclick = () => {
+          try {
+            this.p2p = new P2PManager(this);
+            this.p2p.createRoom();
+          } catch (e) {
+            this.showToast('Online indisponível neste ambiente.');
+            if (this.p2p) this.p2p.cancel();
+          }
+        };
+        document.getElementById('btn-join-room').onclick = () => {
+          const code = document.getElementById('join-room-input').value;
+          if (!code.trim()) { this.showToast('Digite o código da sala.'); return; }
+          try {
+            this.p2p = new P2PManager(this);
+            this.p2p.joinRoom(code);
+          } catch (e) {
+            this.showToast('Online indisponível neste ambiente.');
+            if (this.p2p) this.p2p.cancel();
+          }
+        };
+
         document.getElementById('btn-menu-missions').onclick = () => this.openMissionsModal();
         document.getElementById('btn-close-missions').onclick = () => document.getElementById('missions-modal').classList.add('hidden');
         document.getElementById('tab-daily-btn').onclick = () => {
@@ -2608,7 +2814,6 @@
         document.getElementById('btn-menu-ranking').onclick = () => this.openRankingModal();
         document.getElementById('btn-close-ranking').onclick = () => document.getElementById('ranking-modal').classList.add('hidden');
 
-        // Configurações (Etapa 4)
         document.getElementById('btn-menu-settings').onclick = () => this.openSettingsModal();
         document.getElementById('btn-close-settings').onclick = () => document.getElementById('settings-modal').classList.add('hidden');
 
@@ -2648,7 +2853,6 @@
           State.save();
         };
 
-        // Apagar progresso inline
         document.getElementById('btn-request-reset').onclick = () => {
           document.getElementById('reset-init-box').classList.add('hidden');
           document.getElementById('reset-confirm-box').classList.remove('hidden');
@@ -2665,7 +2869,6 @@
           this.showToast('Progresso completamente reiniciado!');
         };
 
-        // Loja
         document.getElementById('btn-menu-shop').onclick = () => this.openShop();
         document.getElementById('btn-close-shop').onclick = () => document.getElementById('shop-modal').classList.add('hidden');
         document.getElementById('tab-guns-btn').onclick = () => { this.shopTab = 'GUNS'; this.updateShopTabs(); };
@@ -2674,15 +2877,27 @@
 
         document.getElementById('btn-rematch').onclick = () => {
           document.getElementById('game-over-screen').classList.add('hidden');
+          if (this.gameMode === 'SURVIVAL') this.currentWave = 1;
           this.startMatch();
         };
-        document.getElementById('btn-gameover-menu').onclick = () => {
-          document.getElementById('game-over-screen').classList.add('hidden');
-          document.getElementById('hud').classList.add('hidden');
-          document.getElementById('skills-action-bar').classList.add('hidden');
-          document.getElementById('main-menu').classList.remove('hidden');
-          this.state = 'MENU';
+        document.getElementById('btn-gameover-menu').onclick = () => this.quitToMenu();
+
+        document.getElementById('btn-pause').onclick = (e) => { e.stopPropagation(); this.pauseGame(); };
+        document.getElementById('btn-resume').onclick = () => this.resumeGame();
+        document.getElementById('btn-pause-restart').onclick = () => {
+          this.el.pauseModal.classList.add('hidden');
+          if (this.gameMode === 'SURVIVAL') this.currentWave = 1;
+          this.startMatch();
         };
+        document.getElementById('btn-pause-menu').onclick = () => this.quitToMenu();
+        document.addEventListener('visibilitychange', () => {
+          if (document.hidden) {
+            this.pauseGame();
+            AudioManager.suspend();
+          } else {
+            AudioManager.resume();
+          }
+        });
 
         document.getElementById('btn-skill-dash').onclick = (e) => {
           e.stopPropagation();
@@ -2725,8 +2940,8 @@
               <span style="font-size:0.7rem; color:#fbbf24; font-weight:800;">HP: ${boss.hp} | Recompensa: 🪙 ${boss.reward}</span>
             </div>
             <div>
-              ${isUnlocked 
-                ? '<button class="game-btn primary sm">BATALHAR</button>' 
+              ${isUnlocked
+                ? '<button class="game-btn primary sm">BATALHAR</button>'
                 : '<span style="font-size:0.75rem; color:#ef4444; font-weight:800;">🔒</span>'
               }
             </div>
@@ -2756,7 +2971,17 @@
 
         if (showDaily) {
           State.initDailyMissions();
-          State.dailyMissions.list.forEach(m => {
+          const list = State.dailyMissions.list;
+          const bonus = list.find(m => m.id === 'bonus');
+          if (bonus && !bonus.claimed) bonus.progress = list.filter(m => m.id !== 'bonus' && m.claimed).length;
+          const now = new Date();
+          const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+          const mins = Math.max(1, Math.ceil((midnight - now) / 60000));
+          const note = document.createElement('p');
+          note.style.cssText = 'font-size:0.74rem; color:#94a3b8; text-align:center;';
+          note.innerText = `Novas missões em ${Math.floor(mins / 60)}h ${String(mins % 60).padStart(2, '0')}min`;
+          container.appendChild(note);
+          list.forEach(m => {
             const card = document.createElement('div');
             card.className = `modal-card ${m.claimed ? '' : (m.progress >= m.target ? 'highlight' : '')}`;
             card.innerHTML = `
@@ -2767,9 +2992,9 @@
               <p style="font-size:0.74rem; color:#94a3b8;">${m.desc}</p>
               <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
                 <span style="font-size:0.75rem; font-weight:700;">Progresso: ${m.progress}/${m.target}</span>
-                ${m.claimed 
-                  ? '<span style="color:#10b981; font-weight:800; font-size:0.75rem;">COLETADO ✔</span>' 
-                  : (m.progress >= m.target 
+                ${m.claimed
+                  ? '<span style="color:#10b981; font-weight:800; font-size:0.75rem;">COLETADO ✔</span>'
+                  : (m.progress >= m.target
                     ? `<button class="game-btn primary sm" onclick="arena.claimMission('${m.id}')">RESGATAR</button>`
                     : '<button class="game-btn sm" disabled style="opacity:0.5;">EM CURSO</button>')
                 }
@@ -2809,7 +3034,7 @@
         if (m && !m.claimed && m.progress >= m.target) {
           m.claimed = true;
           State.coins += m.reward;
-          State.save();
+          State.flush();
           this.updateCoinDisplay();
           this.renderMissionsList(true);
           this.showToast(`Recompensa de +${m.reward} moedas resgatada!`);
@@ -2847,6 +3072,7 @@
         document.getElementById('tab-skins-btn').className = `modal-tab-btn ${this.shopTab === 'SKINS' ? 'active' : ''}`;
         document.getElementById('tab-trails-btn').className = `modal-tab-btn ${this.shopTab === 'TRAILS' ? 'active' : ''}`;
         this.renderShop();
+        document.getElementById('shop-items-container').scrollTop = 0;
       }
 
       openShop() {
@@ -2856,6 +3082,13 @@
       }
 
       renderShop() {
+        const box = document.getElementById('shop-items-container');
+        const prev = box.scrollTop;
+        this.renderShopInner();
+        box.scrollTop = prev;
+      }
+
+      renderShopInner() {
         const container = document.getElementById('shop-items-container');
         container.innerHTML = '';
 
@@ -2876,9 +3109,9 @@
                   <p style="font-size:0.72rem; color:#94a3b8;">${gun.desc}</p>
                 </div>
                 <div>
-                  ${isEquipped 
+                  ${isEquipped
                     ? '<button class="game-btn sm" disabled style="opacity:0.6;">USANDO</button>'
-                    : isUnlocked 
+                    : isUnlocked
                       ? `<button class="game-btn primary sm" onclick="arena.equipGun('${gun.id}')">EQUIPAR</button>`
                       : `<button class="game-btn warning sm" onclick="arena.buyGun('${gun.id}', ${gun.cost})">🪙 ${gun.cost}</button>`
                   }
@@ -2940,9 +3173,9 @@
                   </div>
                 </div>
                 <div>
-                  ${isEquipped 
+                  ${isEquipped
                     ? '<button class="game-btn sm" disabled style="opacity:0.6;">USANDO</button>'
-                    : isUnlocked 
+                    : isUnlocked
                       ? `<button class="game-btn primary sm" onclick="arena.equipSkin('${skin.id}')">EQUIPAR</button>`
                       : `<button class="game-btn warning sm" onclick="arena.buySkin('${skin.id}', ${skin.cost})">🪙 ${skin.cost}</button>`
                   }
@@ -2967,9 +3200,9 @@
                   </div>
                 </div>
                 <div>
-                  ${isEquipped 
+                  ${isEquipped
                     ? '<button class="game-btn sm" disabled style="opacity:0.6;">USANDO</button>'
-                    : isUnlocked 
+                    : isUnlocked
                       ? `<button class="game-btn primary sm" onclick="arena.equipTrail('${trail.id}')">EQUIPAR</button>`
                       : `<button class="game-btn warning sm" onclick="arena.buyTrail('${trail.id}', ${trail.cost})">🪙 ${trail.cost}</button>`
                   }
@@ -3060,7 +3293,6 @@
         this.showToast('Rasto equipado!');
       }
 
-      
       startOnlineMatch(isHost) {
         this.gameMode = 'ONLINE';
         this.p1Wins = 0;
@@ -3069,7 +3301,7 @@
 
         const p1Config = GUN_CATALOG.find(g => g.id === State.equippedGun) || GUN_CATALOG[0];
         this.player1 = new Gun(true, p1Config);
-        this.player2 = new Gun(false, GUN_CATALOG[0]); // Rival online
+        this.player2 = new Gun(false, GUN_CATALOG[0]);
 
         document.getElementById('rival-label').innerText = 'RIVAL ONLINE';
         const badgeEl = document.getElementById('mode-detail-badge');
@@ -3083,6 +3315,7 @@
       }
 
       startMatch() {
+        State.initDailyMissions();
         this.p1Wins = 0;
         this.p2Wins = 0;
         this.currentRound = 1;
@@ -3140,6 +3373,7 @@
         }
 
         document.getElementById('hud').classList.remove('hidden');
+        this.el.pauseBtn.classList.remove('hidden');
 
         if (this.gameMode !== 'LOCAL') {
           document.getElementById('skills-action-bar').classList.remove('hidden');
@@ -3152,43 +3386,29 @@
 
       startRound(customRivalHp = 10) {
         this.state = 'COUNTDOWN';
+        this.stateT = 0;
+        this.cdStage = 0;
         this.bullets = [];
         this.replayBuffer = [];
-        document.getElementById('replay-banner').classList.add('hidden');
+        this.el.replayBanner.classList.add('hidden');
         this.rebuildArenaObjects();
 
         this.player1.reset(this.width * 0.3, this.height * 0.22, 10);
         this.player2.reset(this.width * 0.7, this.height * 0.22, customRivalHp);
 
         AudioManager.setDanger(false);
+        this.hudCache = {};
+        this.el.skills.forEach(sk => { sk.k = -1; });
         this.updateHUD();
 
-        const banner = document.getElementById('round-banner');
-        banner.innerText = this.gameMode === 'SURVIVAL' 
-          ? `ONDA ${this.currentWave}` 
+        const banner = this.el.roundBanner;
+        banner.innerText = this.gameMode === 'SURVIVAL'
+          ? `ONDA ${this.currentWave}`
           : (this.gameMode === 'TRAINING' ? 'TREINO DE MIRA' : `ROUND ${this.currentRound}`);
         banner.classList.remove('hidden');
 
-        const cd = document.getElementById('countdown-display');
-        cd.classList.remove('hidden');
-        let count = 3;
-        cd.innerText = count;
-
-        const interval = setInterval(() => {
-          count--;
-          if (count > 0) {
-            cd.innerText = count;
-            AudioManager.playBounce();
-          } else if (count === 0) {
-            cd.innerText = 'DUELO!';
-            AudioManager.playHit();
-          } else {
-            clearInterval(interval);
-            cd.classList.add('hidden');
-            banner.classList.add('hidden');
-            this.state = 'PLAYING';
-          }
-        }, 650);
+        this.el.countdown.classList.remove('hidden');
+        this.el.countdown.innerText = '3';
       }
 
       setupInputs() {
@@ -3204,9 +3424,14 @@
         };
 
         window.addEventListener('keydown', (e) => {
-          if (e.code === 'Space') {
+          if (e.code === 'Escape' || e.code === 'KeyP') {
+            if (this.state === 'PAUSED') this.resumeGame(); else this.pauseGame();
+            return;
+          }
+          if (e.code === 'Space' && (this.state === 'PLAYING' || this.state === 'COUNTDOWN')) {
+            e.preventDefault();
             this.isP1Holding = true;
-            shootP1();
+            if (!e.repeat) shootP1();
           }
           if (e.code === 'ArrowUp' || e.code === 'KeyW') {
             this.isP2Holding = true;
@@ -3229,6 +3454,7 @@
         });
 
         const handleCanvasPointer = (clientX, isDown, target) => {
+          if (this.state === 'SLOWMO_REPLAY') { this.replayT = this.replayEnd; return; }
           if (target && target.closest && target.closest('#skills-action-bar')) return;
           const rect = this.canvas.getBoundingClientRect();
           const x = clientX - rect.left;
@@ -3247,20 +3473,32 @@
           }
         };
 
+        const syncHolds = (touches) => {
+          const rect = this.canvas.getBoundingClientRect();
+          let h1 = false;
+          let h2 = false;
+          for (let i = 0; i < touches.length; i++) {
+            const x = touches[i].clientX - rect.left;
+            if (this.gameMode === 'LOCAL' && x >= this.width / 2) h2 = true; else h1 = true;
+          }
+          this.isP1Holding = h1;
+          this.isP2Holding = h2;
+        };
+
         this.canvas.addEventListener('touchstart', (e) => {
           e.preventDefault();
-          for (let i = 0; i < e.touches.length; i++) {
-            handleCanvasPointer(e.touches[i].clientX, true, e.target);
+          for (let i = 0; i < e.changedTouches.length; i++) {
+            handleCanvasPointer(e.changedTouches[i].clientX, true, e.target);
           }
+          syncHolds(e.touches);
         }, { passive: false });
 
-        this.canvas.addEventListener('touchend', (e) => {
+        const onTouchEnd = (e) => {
           e.preventDefault();
-          if (e.touches.length === 0) {
-            this.isP1Holding = false;
-            this.isP2Holding = false;
-          }
-        }, { passive: false });
+          syncHolds(e.touches);
+        };
+        this.canvas.addEventListener('touchend', onTouchEnd, { passive: false });
+        this.canvas.addEventListener('touchcancel', onTouchEnd, { passive: false });
 
         this.canvas.addEventListener('mousedown', (e) => handleCanvasPointer(e.clientX, true, e.target));
         window.addEventListener('mouseup', () => {
@@ -3275,7 +3513,6 @@
       }
 
       createMuzzleEffect(x, y, angle, trailConfig) {
-        // Limite de partículas
         if (this.particles.length > 70) this.particles.splice(0, 10);
         const color = trailConfig.color || '#fef08a';
         for (let i = 0; i < 4; i++) {
@@ -3321,7 +3558,7 @@
           const dx = gun.x - x;
           const dy = gun.y - y;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 130) {
+          if (dist < 130 && dist > 1) {
             const force = (130 - dist) / 130 * 12;
             gun.vx += (dx / dist) * force;
             gun.vy += (dy / dist) * force;
@@ -3329,6 +3566,7 @@
             this.createFloatText(gun.x, gun.y - 20, '-2 (TNT)', '#ef4444');
           }
         });
+        this.checkRoundEnd();
       }
 
       detonateGrenade(x, y, fromPlayer) {
@@ -3350,6 +3588,7 @@
             this.createFloatText(gun.x, gun.y - 20, '-1 (GRANADA)', '#f59e0b');
           }
         });
+        this.checkRoundEnd();
       }
 
       detonateRocket(x, y, damage, fromPlayer) {
@@ -3387,13 +3626,12 @@
         }
       }
 
-      updateAI() {
-        if (this.gameMode === 'LOCAL' || this.gameMode === 'TRAINING' || !this.player2 || this.state !== 'PLAYING') return;
+      updateAI(dt = 1) {
+        if (this.gameMode === 'LOCAL' || this.gameMode === 'TRAINING' || this.gameMode === 'ONLINE' || !this.player2 || this.state !== 'PLAYING') return;
 
         const p2 = this.player2;
         const p1 = this.player1;
 
-        // Desvio de perigos
         for (const b of this.bullets) {
           if (b.isPlayer) {
             const dx = b.x - p2.x;
@@ -3441,9 +3679,8 @@
           }
         }
 
-        // Chefe 2 (Mestre Arquiteto)
         if (this.gameMode === 'CAMPAIGN' && this.currentBossIndex === 1) {
-          this.bossTrickTimer++;
+          this.bossTrickTimer += dt;
           if (this.bossTrickTimer > 320) {
             this.bossTrickTimer = 0;
             this.barriers.push(new Barrier((this.width - 80) / 2, this.height * 0.42, 80, 16, true, 260));
@@ -3454,86 +3691,161 @@
       }
 
       updateHUD() {
-        const p1Pct = Math.max(0, (this.player1.hp / this.player1.maxHp) * 100);
-        const p2Pct = Math.max(0, (this.player2.hp / this.player2.maxHp) * 100);
-        document.getElementById('player-hp-bar').style.width = `${p1Pct}%`;
-        document.getElementById('rival-hp-bar').style.width = `${p2Pct}%`;
+        const p1 = this.player1;
+        const p2 = this.player2;
+        if (!p1 || !p2) return;
+        const c = this.hudCache;
+        const el = this.el;
 
-        document.querySelectorAll('#p1-rounds .dot').forEach((pip, idx) => {
-          pip.className = `dot ${idx < this.p1Wins ? 'blue-active' : ''}`;
-        });
-        document.querySelectorAll('#p2-rounds .dot').forEach((pip, idx) => {
-          pip.className = `dot ${idx < this.p2Wins ? 'red-active' : ''}`;
-        });
+        const a = Math.max(0, Math.round((p1.hp / p1.maxHp) * 100));
+        const b = Math.max(0, Math.round((p2.hp / p2.maxHp) * 100));
+        if (c.a !== a) { el.p1Bar.style.width = a + '%'; c.a = a; }
+        if (c.b !== b) { el.p2Bar.style.width = b + '%'; c.b = b; }
 
-        // Danger Mode na música adaptativa (quando alguém tem HP <= 3)
-        const isDanger = (this.player1 && this.player1.hp <= 3) || (this.player2 && this.player2.hp <= 3);
-        AudioManager.setDanger(isDanger);
-
-        // Cooldowns HUD
-        if (this.gameMode !== 'LOCAL' && this.player1) {
-          const now = performance.now();
-          const updateBtn = (btnId, overlayId, skillKey) => {
-            const btn = document.getElementById(btnId);
-            const ov = document.getElementById(overlayId);
-            const totalCd = SKILLS_CONFIG[skillKey].cd;
-            const remaining = Math.max(0, this.player1.cooldowns[skillKey] - now);
-            if (remaining > 0) {
-              btn.classList.add('on-cooldown');
-              const pct = (remaining / totalCd) * 100;
-              ov.style.height = `${pct}%`;
-              ov.innerText = (remaining / 1000).toFixed(1) + 's';
-            } else {
-              btn.classList.remove('on-cooldown');
-              ov.style.height = '0%';
-              ov.innerText = '';
-            }
-          };
-          updateBtn('btn-skill-dash', 'cd-dash', 'dash');
-          updateBtn('btn-skill-grenade', 'cd-grenade', 'grenade');
-          updateBtn('btn-skill-shield', 'cd-shield', 'shield');
+        const rk = this.p1Wins + '|' + this.p2Wins;
+        if (c.rounds !== rk) {
+          el.p1Dots.forEach((d, i) => { d.className = 'dot' + (i < this.p1Wins ? ' blue-active' : ''); });
+          el.p2Dots.forEach((d, i) => { d.className = 'dot' + (i < this.p2Wins ? ' red-active' : ''); });
+          c.rounds = rk;
         }
 
-        this.updateCoinDisplay();
+        AudioManager.setDanger(this.state === 'PLAYING' && (p1.hp <= 3 || p2.hp <= 3));
+
+        if (this.gameMode !== 'LOCAL') {
+          const now = performance.now();
+          for (const sk of el.skills) {
+            const remaining = Math.max(0, p1.cooldowns[sk.key] - now);
+            const k = remaining > 0 ? Math.ceil(remaining / 100) : 0;
+            if (sk.k !== k) {
+              sk.k = k;
+              if (k > 0) {
+                sk.btn.classList.add('on-cooldown');
+                sk.ov.style.height = (remaining / SKILLS_CONFIG[sk.key].cd * 100) + '%';
+                sk.ov.innerText = (k / 10).toFixed(1) + 's';
+              } else {
+                sk.btn.classList.remove('on-cooldown');
+                sk.ov.style.height = '0%';
+                sk.ov.innerText = '';
+              }
+            }
+          }
+        }
+
+        if (c.coins !== State.coins) {
+          c.coins = State.coins;
+          this.updateCoinDisplay();
+        }
       }
 
       recordReplaySnapshot() {
-        // Grava posições e ângulos para os últimos 2s (120 snapshots)
-        if (this.replayBuffer.length > 120) {
-          this.replayBuffer.shift();
-        }
-        this.replayBuffer.push({
-          p1: { x: this.player1.x, y: this.player1.y, angle: this.player1.angle, hp: this.player1.hp },
-          p2: this.player2 ? { x: this.player2.x, y: this.player2.y, angle: this.player2.angle, hp: this.player2.hp } : null,
-          bullets: this.bullets.map(b => ({ x: b.x, y: b.y, angle: b.angle, type: b.gunType }))
+        const now = performance.now();
+        const buf = this.replayBuffer;
+        const bl = [];
+        for (const bu of this.bullets) bl.push(bu.x, bu.y, bu.angle);
+        buf.push({
+          t: now,
+          p1: [this.player1.x, this.player1.y, this.player1.angle],
+          p2: this.player2 ? [this.player2.x, this.player2.y, this.player2.angle] : null,
+          bl
         });
+        while (buf.length > 1 && buf[0].t < now - 1600) buf.shift();
       }
 
       checkRoundEnd() {
         if (this.state !== 'PLAYING') return;
 
-        if (this.player1.hp <= 0 || (this.player2 && this.player2.hp <= 0)) {
-          // Ativa o Replay em Câmera Lenta dos últimos 2 segundos
+        if (this.player1.hp <= 0 || (this.gameMode !== 'TRAINING' && this.player2 && this.player2.hp <= 0)) {
+          this.recordReplaySnapshot();
+          const buf = this.replayBuffer;
+          const last = buf[buf.length - 1].t;
+          this.replayEnd = last;
+          this.replayT = Math.max(buf[0].t, last - 1400);
           this.state = 'SLOWMO_REPLAY';
-          this.replayPlaybackIndex = 0;
-          this.replaySlowmoCounter = 0;
-          document.getElementById('replay-banner').classList.remove('hidden');
+          this.el.replayBanner.classList.remove('hidden');
           AudioManager.setDanger(false);
+        }
+      }
 
-          // Ao término do replay, transita para o encerramento do round
-          setTimeout(() => {
-            document.getElementById('replay-banner').classList.add('hidden');
+      tickState(ms) {
+        if (this.state === 'COUNTDOWN') {
+          this.stateT += ms;
+          const stage = Math.floor(this.stateT / 650);
+          if (stage !== this.cdStage) {
+            this.cdStage = stage;
+            if (stage <= 2) {
+              this.el.countdown.innerText = String(3 - stage);
+              AudioManager.playBounce();
+            } else if (stage === 3) {
+              this.el.countdown.innerText = 'DUELO!';
+              AudioManager.playHit();
+            } else {
+              this.el.countdown.classList.add('hidden');
+              this.el.roundBanner.classList.add('hidden');
+              this.state = 'PLAYING';
+            }
+          }
+        } else if (this.state === 'PLAYING') {
+          this.recordReplaySnapshot();
+        } else if (this.state === 'SLOWMO_REPLAY') {
+          this.replayT += ms * 0.4;
+          if (this.replayT >= this.replayEnd) {
+            this.el.replayBanner.classList.add('hidden');
             this.handleRoundFinish();
-          }, 2400);
+          }
+        } else if (this.state === 'ROUND_OVER') {
+          this.stateT += ms;
+          if (this.stateT >= 1100) this.advanceAfterRound();
+        }
+      }
+
+      drawReplay() {
+        const ctx = this.ctx;
+        const buf = this.replayBuffer;
+        let i = buf.length - 1;
+        while (i > 0 && buf[i].t > this.replayT) i--;
+        const f0 = buf[i];
+        const f1 = buf[Math.min(i + 1, buf.length - 1)];
+        const span = f1.t - f0.t;
+        const f = span > 0 ? Math.min(1, Math.max(0, (this.replayT - f0.t) / span)) : 0;
+        const lerp = (u, v) => u + (v - u) * f;
+
+        ctx.fillStyle = 'rgba(225, 29, 72, 0.08)';
+        ctx.fillRect(0, 0, this.width, this.height);
+        ctx.fillStyle = '#0284c7';
+        ctx.fillRect(0, this.height - 8, this.width, 8);
+        this.barriers.forEach(br => br.draw(ctx));
+
+        const pairs = [[this.player1, f0.p1, f1.p1], [this.player2, f0.p2, f1.p2]];
+        for (const [g, s0, s1] of pairs) {
+          if (!g || !s0 || !s1) continue;
+          const ox = g.x, oy = g.y, oa = g.angle;
+          g.x = lerp(s0[0], s1[0]);
+          g.y = lerp(s0[1], s1[1]);
+          g.angle = lerp(s0[2], s1[2]);
+          g.draw(ctx);
+          g.x = ox; g.y = oy; g.angle = oa;
+        }
+
+        const bl = f0.bl;
+        ctx.fillStyle = '#fef08a';
+        for (let k = 0; k < bl.length; k += 3) {
+          ctx.save();
+          ctx.translate(bl[k], bl[k + 1]);
+          ctx.rotate(bl[k + 2]);
+          ctx.fillRect(-4, -2, 8, 4);
+          ctx.restore();
         }
       }
 
       handleRoundFinish() {
         this.state = 'ROUND_OVER';
+        this.stateT = 0;
         const p1Won = !this.player2 || this.player2.hp <= 0;
+        this.pendingP1Won = p1Won;
 
         if (p1Won) {
           this.p1Wins++;
+          State.trackMission('rounds', 1);
           State.currentWinStreak++;
           if (State.currentWinStreak > State.bestWinStreak) {
             State.bestWinStreak = State.currentWinStreak;
@@ -3544,33 +3856,78 @@
         }
         State.save();
         this.updateHUD();
+      }
 
-        setTimeout(() => {
-          if (this.gameMode === 'SURVIVAL') {
-            if (p1Won) {
-              this.currentWave++;
-              if (this.currentWave > State.survivalBestWave) State.survivalBestWave = this.currentWave;
-              if (this.currentWave >= 5) State.unlockAchievement('wave_survivor', 'Sobrevivente Heroico', 'Alcançou a Onda 5 na Sobrevivência', 100);
-              State.save();
-              this.startRound(8 + this.currentWave * 2);
-            } else {
-              this.endMatch(false);
-            }
-            return;
-          }
+      advanceAfterRound() {
+        const p1Won = this.pendingP1Won;
 
-          if (this.gameMode === 'CAMPAIGN') {
-            this.endMatch(p1Won);
-            return;
-          }
+        if (this.gameMode === 'SURVIVAL') {
+          if (p1Won) {
+            this.currentWave++;
+            State.trackMission('waves', 1);
+            if (this.currentWave > State.survivalBestWave) State.survivalBestWave = this.currentWave;
+            if (this.currentWave >= 5) State.unlockAchievement('wave_survivor', 'Sobrevivente Heroico', 'Alcançou a Onda 5 na Sobrevivência', 100);
+            State.save();
 
-          if (this.p1Wins >= 2 || this.p2Wins >= 2) {
-            this.endMatch(this.p1Wins >= 2);
+            const waveGuns = ['pistol', 'saw', 'magnum', 'rifle', 'rocket', 'laser'];
+            const gunIdx = Math.min(waveGuns.length - 1, Math.floor((this.currentWave - 1) / 2));
+            this.player2.config = GUN_CATALOG.find(g => g.id === waveGuns[gunIdx]) || GUN_CATALOG[0];
+            this.aiProfile = this.currentWave % 2 === 0 ? 'AGGRESSIVE' : 'UNPREDICTABLE';
+            document.getElementById('rival-label').innerText = `ONDA ${this.currentWave}`;
+            document.getElementById('mode-detail-badge').innerText = `ONDA ${this.currentWave}`;
+            this.startRound(8 + this.currentWave * 2);
           } else {
-            this.currentRound++;
-            this.startRound();
+            this.endMatch(false);
           }
-        }, 1100);
+          return;
+        }
+
+        if (this.gameMode === 'CAMPAIGN') {
+          this.endMatch(p1Won);
+          return;
+        }
+
+        if (this.p1Wins >= 2 || this.p2Wins >= 2) {
+          this.endMatch(this.p1Wins >= 2);
+        } else {
+          this.currentRound++;
+          this.startRound();
+        }
+      }
+
+      pauseGame() {
+        if (this.gameMode === 'ONLINE') return;
+        if (this.state !== 'PLAYING' && this.state !== 'COUNTDOWN') return;
+        this.prePauseState = this.state;
+        this.state = 'PAUSED';
+        this.isP1Holding = false;
+        this.isP2Holding = false;
+        this.el.pauseModal.classList.remove('hidden');
+      }
+
+      resumeGame() {
+        if (this.state !== 'PAUSED') return;
+        this.el.pauseModal.classList.add('hidden');
+        this.state = this.prePauseState;
+        this.lastFrameTime = performance.now();
+      }
+
+      quitToMenu() {
+        this.gameMode = 'SOLO';
+        if (this.p2p) {
+          this.p2p.cancel();
+          this.p2p = null;
+        }
+        this.state = 'MENU';
+        this.bullets = [];
+        this.isP1Holding = false;
+        this.isP2Holding = false;
+        AudioManager.setDanger(false);
+        ['game-over-screen', 'pause-modal', 'hud', 'skills-action-bar', 'btn-pause', 'countdown-display', 'round-banner', 'replay-banner']
+          .forEach(id => document.getElementById(id).classList.add('hidden'));
+        document.getElementById('main-menu').classList.remove('hidden');
+        this.ctx.clearRect(0, 0, this.width, this.height);
+        this.updateCoinDisplay();
       }
 
       endMatch(playerWon) {
@@ -3581,6 +3938,7 @@
           const boss = CAMPAIGN_BOSSES[this.currentBossIndex];
           if (playerWon) {
             matchReward = boss.reward;
+            State.trackMission('boss', 1);
             if (boss.id === State.campaignProgress && State.campaignProgress < CAMPAIGN_BOSSES.length) {
               State.campaignProgress++;
             }
@@ -3602,19 +3960,20 @@
         State.save();
 
         document.getElementById('game-over-title').innerText = playerWon ? 'VITÓRIA!' : 'FIM DE JOGO!';
-        document.getElementById('game-over-subtitle').innerText = playerWon 
-          ? (this.gameMode === 'CAMPAIGN' ? `Você derrotou ${CAMPAIGN_BOSSES[this.currentBossIndex].title}!` : 'Você dominou a arena!') 
+        document.getElementById('game-over-subtitle').innerText = playerWon
+          ? (this.gameMode === 'CAMPAIGN' ? `Você derrotou ${CAMPAIGN_BOSSES[this.currentBossIndex].title}!` : 'Você dominou a arena!')
           : 'Seu oponente levou a melhor neste duelo.';
         document.getElementById('match-coins-earned').innerText = matchReward;
 
+        document.getElementById('btn-rematch').classList.toggle('hidden', this.gameMode === 'ONLINE');
         document.getElementById('game-over-screen').classList.remove('hidden');
         document.getElementById('skills-action-bar').classList.add('hidden');
+        this.el.pauseBtn.classList.add('hidden');
       }
 
       update(dt) {
         if (this.shakeTimer > 0) this.shakeTimer -= dt;
 
-        // Limpeza de barreiras temporárias
         for (let i = this.barriers.length - 1; i >= 0; i--) {
           const b = this.barriers[i];
           if (b.isTemp) {
@@ -3624,12 +3983,10 @@
         }
 
         if (this.state === 'PLAYING') {
-          this.recordReplaySnapshot();
-
           if (this.isP1Holding && this.player1.config.auto) this.player1.shoot(this);
           if (this.isP2Holding && this.player2 && this.player2.config.auto && this.gameMode === 'LOCAL') this.player2.shoot(this);
 
-          this.updateAI();
+          this.updateAI(dt);
           if (this.player1) this.player1.update(this, dt);
           if (this.player2 && this.gameMode !== 'TRAINING') this.player2.update(this, dt);
 
@@ -3647,6 +4004,10 @@
             for (const barrel of this.barrels) {
               if (barrel.checkHit(b, this)) break;
             }
+            if (!b.alive) {
+              this.bullets.splice(i, 1);
+              continue;
+            }
 
             if (this.gameMode === 'TRAINING') {
               for (const tgt of this.targets) {
@@ -3655,9 +4016,13 @@
                   break;
                 }
               }
+              if (!b.alive) {
+                this.bullets.splice(i, 1);
+              }
+              continue;
             }
 
-            if (this.gameMode !== 'TRAINING' && this.player2) {
+            if (this.player2) {
               const target = b.isPlayer ? this.player2 : this.player1;
               const shooter = b.isPlayer ? this.player1 : this.player2;
               const dx = b.x - target.x;
@@ -3665,6 +4030,12 @@
               const dist = Math.sqrt(dx * dx + dy * dy);
 
               if (dist < target.radius + b.radius) {
+                if (b.gunType === 'grenade') {
+                  b.alive = false;
+                  this.bullets.splice(i, 1);
+                  this.detonateGrenade(b.x, b.y, b.isPlayer);
+                  continue;
+                }
                 if (b.gunType === 'rocket') {
                   this.detonateRocket(b.x, b.y, b.damage, b.isPlayer);
                 } else if (b.gunType === 'gravity') {
@@ -3683,26 +4054,32 @@
                 shooter.streak++;
                 if (shooter.streak === 5) {
                   shooter.heal(1, this);
-                  if (shooter.isPlayer) State.unlockAchievement('sharpshooter', 'Atirador de Elite', 'Emendou 5 acertos seguidos', 60);
+                  if (shooter.isPlayer) {
+                    State.unlockAchievement('sharpshooter', 'Atirador de Elite', 'Emendou 5 acertos seguidos', 60);
+                    State.trackMission('streaks', 1);
+                  }
                 }
 
                 b.alive = false;
                 this.bullets.splice(i, 1);
-                this.updateHUD();
                 this.checkRoundEnd();
               }
             }
           }
         }
 
-        // Limite estrito de partículas para manter 60 FPS (Ajuste de desempenho)
         if (this.particles.length > 75) {
           this.particles.splice(0, this.particles.length - 75);
         }
 
-        for (let i = this.particles.length - 1; i >= 0; i--) {
-          this.particles[i].update(dt);
-          if (this.particles[i].life <= 0) this.particles.splice(i, 1);
+        const ps = this.particles;
+        for (let i = ps.length - 1; i >= 0; i--) {
+          const p = ps[i];
+          p.update(dt);
+          if (p.life <= 0) {
+            ps[i] = ps[ps.length - 1];
+            ps.pop();
+          }
         }
 
         for (let i = this.floatTexts.length - 1; i >= 0; i--) {
@@ -3710,7 +4087,6 @@
           if (this.floatTexts[i].life <= 0) this.floatTexts.splice(i, 1);
         }
 
-        this.updateHUD();
       }
 
       draw() {
@@ -3724,38 +4100,8 @@
 
         this.ctx.clearRect(0, 0, this.width, this.height);
 
-        // SE ESTIVER EM MODO REPLAY EM CÂMERA LENTA (SLOWMO)
-        if (this.state === 'SLOWMO_REPLAY' && this.replayBuffer.length > 0) {
-          this.replaySlowmoCounter += 0.25; // 0.25x speed
-          const frameIdx = Math.min(this.replayBuffer.length - 1, Math.floor(this.replaySlowmoCounter));
-          const snap = this.replayBuffer[frameIdx];
-
-          // Filtro vinheta slowmo retrô
-          this.ctx.fillStyle = 'rgba(225, 29, 72, 0.08)';
-          this.ctx.fillRect(0, 0, this.width, this.height);
-
-          // Desenha as armas e projéteis da gravação
-          if (snap.p1) {
-            this.player1.x = snap.p1.x;
-            this.player1.y = snap.p1.y;
-            this.player1.angle = snap.p1.angle;
-            this.player1.draw(this.ctx);
-          }
-          if (snap.p2 && this.player2) {
-            this.player2.x = snap.p2.x;
-            this.player2.y = snap.p2.y;
-            this.player2.angle = snap.p2.angle;
-            this.player2.draw(this.ctx);
-          }
-          snap.bullets.forEach(b => {
-            this.ctx.save();
-            this.ctx.translate(b.x, b.y);
-            this.ctx.rotate(b.angle);
-            this.ctx.fillStyle = '#fef08a';
-            this.ctx.fillRect(-4, -2, 8, 4);
-            this.ctx.restore();
-          });
-
+        if (this.state === 'SLOWMO_REPLAY' && this.replayBuffer.length > 1) {
+          this.drawReplay();
           this.ctx.restore();
           return;
         }
@@ -3771,12 +4117,10 @@
           this.ctx.setLineDash([]);
         }
 
-        // Trampolim inferior azul néon
+        this.ctx.fillStyle = 'rgba(56, 189, 248, 0.22)';
+        this.ctx.fillRect(0, this.height - 14, this.width, 6);
         this.ctx.fillStyle = '#0284c7';
-        this.ctx.shadowColor = '#38bdf8';
-        this.ctx.shadowBlur = 10;
         this.ctx.fillRect(0, this.height - 8, this.width, 8);
-        this.ctx.shadowBlur = 0;
 
         this.barriers.forEach(b => b.draw(this.ctx));
         this.barrels.forEach(b => b.draw(this.ctx));
@@ -3794,13 +4138,18 @@
 
       loop() {
         const now = performance.now();
-        // Delta time normalizado a 60 FPS (16.666 ms = 1.0)
-        let dt = (now - this.lastFrameTime) / 16.666;
-        if (dt > 2.0) dt = 2.0; // previne picos anormais após pausas
+        const real = Math.min(now - this.lastFrameTime, 50);
         this.lastFrameTime = now;
 
-        this.update(dt);
-        this.draw();
+        if (this.state !== 'PAUSED') {
+          const dt = real / 16.666;
+          const steps = Math.max(1, Math.ceil(dt));
+          const h = dt / steps;
+          for (let i = 0; i < steps; i++) this.update(h);
+          this.tickState(real);
+          this.updateHUD();
+        }
+        if (this.state !== 'MENU') this.draw();
         requestAnimationFrame(() => this.loop());
       }
     }
@@ -3808,8 +4157,9 @@
     let arena;
     window.addEventListener('DOMContentLoaded', () => {
       arena = new GameArena();
+      window.arena = arena;
       arena.loop();
     });
   </script>
-</body>
-</html>
+
+</body></html>

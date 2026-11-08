@@ -1315,7 +1315,7 @@
         this.squashX = 1;
         this.squashY = 1;
         this.flashTime = 0;
-        this.radius = 28;
+        this.radius = 35;
 
         this.shieldTimer = 0;
         this.dashTimer = 0;
@@ -1379,7 +1379,7 @@
         this.squashX = 0.82;
         this.squashY = 1.25;
 
-        const muzzleDist = 36;
+        const muzzleDist = 45;
         const bx = this.x + Math.cos(this.angle) * muzzleDist;
         const by = this.y + Math.sin(this.angle) * muzzleDist;
 
@@ -1427,7 +1427,7 @@
         if (now < this.cooldowns.grenade) return false;
         this.cooldowns.grenade = now + SKILLS_CONFIG.grenade.cd;
 
-        const muzzleDist = 36;
+        const muzzleDist = 45;
         const gx = this.x + Math.cos(this.angle) * muzzleDist;
         const gy = this.y + Math.sin(this.angle) * muzzleDist;
 
@@ -1541,7 +1541,7 @@
 
         if (this.shieldTimer > 0) {
           ctx.beginPath();
-          ctx.arc(0, 0, 46, 0, Math.PI * 2);
+          ctx.arc(0, 0, 58, 0, Math.PI * 2);
           ctx.fillStyle = 'rgba(16, 185, 129, 0.2)';
           ctx.fill();
           ctx.strokeStyle = '#10b981';
@@ -1549,7 +1549,7 @@
           ctx.stroke();
         }
 
-        ctx.scale(this.squashX * 1.3, this.squashY * 1.3);
+        ctx.scale(this.squashX * 1.6, this.squashY * 1.6);
         ctx.rotate(this.angle);
 
         let bodyColor = this.customPrimary || (this.isPlayer ? '#38bdf8' : '#f43f5e');
@@ -1912,7 +1912,7 @@
           ctx.strokeStyle = '#38bdf8';
           ctx.lineWidth = 1.5;
           ctx.beginPath();
-          ctx.arc(0, 0, 8, 0, Math.PI * 2);
+          ctx.arc(0, 0, 58, 0, Math.PI * 2);
           ctx.fill();
           ctx.stroke();
           ctx.fillStyle = '#64748b';
@@ -1935,12 +1935,12 @@
           ctx.shadowBlur = 10;
           ctx.fillStyle = '#c084fc';
           ctx.beginPath();
-          ctx.arc(0, 0, 6, 0, Math.PI * 2);
+          ctx.arc(0, 0, 58, 0, Math.PI * 2);
           ctx.fill();
         } else if (this.gunType === 'grenade') {
           ctx.fillStyle = '#475569';
           ctx.beginPath();
-          ctx.arc(0, 0, 6, 0, Math.PI * 2);
+          ctx.arc(0, 0, 58, 0, Math.PI * 2);
           ctx.fill();
           ctx.fillStyle = '#f59e0b';
           ctx.fillRect(-2, -8, 4, 4);

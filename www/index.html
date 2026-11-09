@@ -2799,6 +2799,7 @@
         this.bullets = [];
         this.particles = [];
         this.floatTexts = [];
+        this.lastDemoShot = 0;
       }
 
       updateMenuSimulation(dt = 1.0) {
@@ -2807,12 +2808,13 @@
           return;
         }
 
-        // IA automática das duas armas de demonstração
         const p1 = this.demoP1;
         const p2 = this.demoP2;
+        const now = performance.now();
 
+        // Controla cadência do demo para não poluir com tiros excessivos (máx 1 tiro a cada 550ms)
         const updateDemoGun = (gun, target) => {
-          gun.update(this, dt * 0.85); // ligeiramente mais lento/cinematográfico
+          gun.update(this, dt);
           const dx = target.x - gun.x;
           const dy = target.y - gun.y;
           const targetAngle = Math.atan2(dy, dx);
@@ -2820,8 +2822,11 @@
           if (diff < -Math.PI) diff += Math.PI * 2;
           if (diff > Math.PI) diff -= Math.PI * 2;
 
-          if (Math.abs(diff) < 0.45 || gun.y > this.height * 0.7) {
-            gun.shoot(this);
+          if (now - this.lastDemoShot > 550 && (Math.abs(diff) < 0.45 || gun.y > this.height * 0.7)) {
+            if (this.bullets.length < 4) {
+              gun.shoot(this);
+              this.lastDemoShot = now;
+            }
           }
           if (gun.y > this.height - 40) {
             gun.vy = -7.5;
@@ -2833,25 +2838,25 @@
 
         for (let i = this.bullets.length - 1; i >= 0; i--) {
           const b = this.bullets[i];
-          b.update(this, dt * 0.85);
+          b.update(this, dt);
           if (!b.alive) {
             this.bullets.splice(i, 1);
             continue;
           }
 
-          // Colisão com as armas demo
           [p1, p2].forEach(target => {
             const dx = b.x - target.x;
             const dy = b.y - target.y;
             if (Math.sqrt(dx * dx + dy * dy) < target.radius + b.radius) {
-              target.takeDamage(1, this);
-              target.hp = 999; // mantêm-se vivas indefinidamente
+              target.hp = 999;
               b.alive = false;
             }
           });
           if (!b.alive) this.bullets.splice(i, 1);
         }
 
+        // Limite rígido de partículas no menu (máximo 12)
+        if (this.particles.length > 12) this.particles.splice(0, this.particles.length - 12);
         for (let i = this.particles.length - 1; i >= 0; i--) {
           this.particles[i].update(dt);
           if (this.particles[i].life <= 0) this.particles.splice(i, 1);
@@ -3097,18 +3102,34 @@
           btnCancelExit.onclick = () => modalExit.classList.add('hidden');
           btnConfirmExit.onclick = () => {
             modalExit.classList.add('hidden');
-            // Fechamento nativo no Capacitor / Android ou fallback Web
+            // 1. Tenta Capacitor App Plugin
             try {
-              if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
+              if (window.Capacitor?.Plugins?.App?.exitApp) {
                 window.Capacitor.Plugins.App.exitApp();
-              } else if (navigator && navigator.app && navigator.app.exitApp) {
-                navigator.app.exitApp();
-              } else {
-                window.close();
+                return;
               }
-            } catch(e) {
+            } catch(e) {}
+
+            // 2. Tenta Cordova / WebView Android App Interface
+            try {
+              if (navigator.app && typeof navigator.app.exitApp === 'function') {
+                navigator.app.exitApp();
+                return;
+              }
+            } catch(e) {}
+
+            // 3. Tenta window.close
+            try {
               window.close();
-            }
+            } catch(e) {}
+
+            // 4. Se o navegador ou WebView bloquear o fechamento programático, exibe tela de encerramento
+            document.body.innerHTML = `
+              <div style="width:100%; height:100%; background:#070b12; display:flex; flex-direction:column; justify-content:center; align-items:center; color:#fff; text-align:center; padding:20px; font-family:sans-serif;">
+                <h2 style="color:#f43f5e; margin-bottom:10px;">JOGO FECHADO</h2>
+                <p style="color:#94a3b8; font-size:0.9rem;">Você já pode minimizar ou fechar o aplicativo.</p>
+              </div>
+            `;
           };
         }
 
@@ -3516,11 +3537,18 @@
 
       startMatch() {
         State.initDailyMissions();
+        this.waitingReward = false;
+        this.state = 'MENU';
         this.p1Wins = 0;
         this.p2Wins = 0;
         this.currentRound = 1;
         this.bossTrickTimer = 0;
         this.replayBuffer = [];
+        this.bullets = [];
+        this.particles = [];
+        this.floatTexts = [];
+        this.lastFrameTime = performance.now();
+        document.getElementById('survival-reward-modal').classList.add('hidden');
 
         const p1Config = GUN_CATALOG.find(g => g.id === State.equippedGun) || GUN_CATALOG[0];
         let p2Config = GUN_CATALOG[0];
@@ -3941,16 +3969,25 @@
 
       recordReplaySnapshot() {
         const now = performance.now();
+        // Grava no máximo a cada 50ms (20 FPS de amostragem) para evitar alocações contínuas
+        if (this.lastReplaySnap && now - this.lastReplaySnap < 50) return;
+        this.lastReplaySnap = now;
+
         const buf = this.replayBuffer;
         const bl = [];
-        for (const bu of this.bullets) bl.push(bu.x, bu.y, bu.angle);
+        const maxB = Math.min(this.bullets.length, 6);
+        for (let i = 0; i < maxB; i++) {
+          const bu = this.bullets[i];
+          bl.push(bu.x, bu.y, bu.angle);
+        }
         buf.push({
           t: now,
           p1: [this.player1.x, this.player1.y, this.player1.angle],
           p2: this.player2 ? [this.player2.x, this.player2.y, this.player2.angle] : null,
           bl
         });
-        while (buf.length > 1 && buf[0].t < now - 1600) buf.shift();
+        // Mantém buffer curto (máximo 30 snapshots = 1.5s)
+        while (buf.length > 30) buf.shift();
       }
 
       checkRoundEnd() {
@@ -3959,11 +3996,16 @@
         if (this.player1.hp <= 0 || (this.gameMode !== 'TRAINING' && this.player2 && this.player2.hp <= 0)) {
           this.recordReplaySnapshot();
           const buf = this.replayBuffer;
-          const last = buf[buf.length - 1].t;
-          this.replayEnd = last;
-          this.replayT = Math.max(buf[0].t, last - 1400);
-          this.state = 'SLOWMO_REPLAY';
-          this.el.replayBanner.classList.remove('hidden');
+          if (buf.length > 1) {
+            const last = buf[buf.length - 1].t;
+            this.replayEnd = last;
+            this.replayT = Math.max(buf[0].t, last - 1400);
+            this.state = 'SLOWMO_REPLAY';
+            this.el.replayBanner.classList.remove('hidden');
+          } else {
+            // Se não houver buffer suficiente, vai direto para o encerramento sem travar
+            this.handleRoundFinish();
+          }
           AudioManager.setDanger(false);
         }
       }
@@ -3996,7 +4038,9 @@
           }
         } else if (this.state === 'ROUND_OVER') {
           this.stateT += ms;
-          if (this.stateT >= 1100) this.advanceAfterRound();
+          if (this.stateT >= 1100 && !this.waitingReward) {
+            this.advanceAfterRound();
+          }
         }
       }
 
@@ -4081,9 +4125,13 @@
               this.startRound(8 + this.currentWave * 2);
             };
 
-            // Chance de upgrade gratuito entre ondas
+            // Chance de upgrade gratuito entre ondas com trava de estado
             if (Math.random() < 0.65) {
-              this.showSurvivalReward(proceed);
+              this.waitingReward = true;
+              this.showSurvivalReward(() => {
+                this.waitingReward = false;
+                proceed();
+              });
             } else {
               proceed();
             }
@@ -4286,8 +4334,13 @@
           }
         }
 
-        if (this.particles.length > 75) {
-          this.particles.splice(0, this.particles.length - 75);
+        // Limites estritos e seguros de alocação de objetos ativos
+        if (this.bullets.length > 15) {
+          this.bullets.splice(0, this.bullets.length - 15);
+        }
+
+        if (this.particles.length > 40) {
+          this.particles.splice(0, this.particles.length - 40);
         }
 
         const ps = this.particles;
@@ -4300,6 +4353,9 @@
           }
         }
 
+        if (this.floatTexts.length > 8) {
+          this.floatTexts.splice(0, this.floatTexts.length - 8);
+        }
         for (let i = this.floatTexts.length - 1; i >= 0; i--) {
           this.floatTexts[i].update(dt);
           if (this.floatTexts[i].life <= 0) this.floatTexts.splice(i, 1);
@@ -4357,16 +4413,22 @@
 
       loop() {
         const now = performance.now();
-        const real = Math.min(now - this.lastFrameTime, 50);
+        // Limita a 33.3ms (max 2 frames de compensação) para evitar qualquer 'spiral of death' de processamento
+        const elapsed = now - this.lastFrameTime;
         this.lastFrameTime = now;
 
         if (this.state === 'MENU') {
-          const dt = real / 16.666;
-          this.updateMenuSimulation(dt);
-          this.drawMenuSimulation();
+          // Otimização: simulação de menu atualiza a ~30 FPS para poupar bateria e CPU
+          this.menuFrameCount = (this.menuFrameCount || 0) + 1;
+          if (this.menuFrameCount % 2 === 0) {
+            this.updateMenuSimulation(1.0);
+            this.drawMenuSimulation();
+          }
         } else if (this.state !== 'PAUSED') {
+          const real = Math.min(elapsed, 33.3);
           const dt = real / 16.666;
-          const steps = Math.max(1, Math.ceil(dt));
+          // Sub-step com teto seguro de 2 passos no máximo
+          const steps = dt > 1.2 ? 2 : 1;
           const h = dt / steps;
           for (let i = 0; i < steps; i++) this.update(h);
           this.tickState(real);

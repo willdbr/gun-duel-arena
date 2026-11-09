@@ -46,10 +46,26 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      background: rgba(7, 11, 18, 0.97);
+      background: rgba(7, 11, 18, 0.96);
       z-index: 50;
       padding: 18px;
       transition: opacity 0.2s ease;
+    }
+    #main-menu {
+      justify-content: flex-start;
+      padding-top: max(22px, env(safe-area-inset-top, 22px));
+      background: rgba(7, 11, 18, 0.78);
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+    }
+    #main-menu h1 {
+      margin-top: 4px;
+      margin-bottom: 2px;
+      font-size: 2.3rem;
+    }
+    #main-menu p.subtitle {
+      margin-bottom: 12px;
+      font-size: 0.78rem;
     }
     .hidden {
       display: none !important;
@@ -611,18 +627,19 @@
       <h1>AEROGUNS</h1>
       <p class="subtitle">BATALHA AÉREA DE RECUO</p>
       <div class="btn-group">
-        <button class="game-btn primary" id="btn-menu-solo">🎮 DUELO SOLO</button>
-        <button class="game-btn" id="btn-menu-campaign" style="border-color:#f43f5e; color:#fda4af;">👑 MODO CAMPANHA</button>
-        <button class="game-btn" id="btn-menu-survival" style="border-color:#10b981; color:#a7f3d0;">🌊 SOBREVIVÊNCIA</button>
-        <button class="game-btn" id="btn-menu-training" style="border-color:#eab308; color:#fef08a;">🎯 MODO TREINO</button>
-        <button class="game-btn accent" id="btn-menu-online" style="border-color:#38bdf8; background:linear-gradient(135deg, #0369a1, #1d4ed8);">🌐 MULTIPLAYER ONLINE</button>
-        <button class="game-btn" id="btn-menu-local">👥 1 VS 1 LOCAL</button>
-        <button class="game-btn warning" id="btn-menu-shop">🛒 ARSENAL & LOJA</button>
+        <button class="game-btn primary" id="btn-menu-solo">DUELO SOLO</button>
+        <button class="game-btn" id="btn-menu-campaign" style="border-color:#f43f5e; color:#fda4af;">MODO CAMPANHA</button>
+        <button class="game-btn" id="btn-menu-survival" style="border-color:#10b981; color:#a7f3d0;">SOBREVIVÊNCIA</button>
+        <button class="game-btn" id="btn-menu-training" style="border-color:#eab308; color:#fef08a;">MODO TREINO</button>
+        <button class="game-btn accent" id="btn-menu-online" style="border-color:#38bdf8; background:linear-gradient(135deg, #0369a1, #1d4ed8);">MULTIPLAYER ONLINE</button>
+        <button class="game-btn" id="btn-menu-local">1 VS 1 LOCAL</button>
+        <button class="game-btn warning" id="btn-menu-shop">ARSENAL & LOJA</button>
         <div style="display:flex; gap:6px;">
-          <button class="game-btn" id="btn-menu-missions" style="flex:1; font-size:0.78rem; padding:9px 4px;">📜 MISSÕES</button>
-          <button class="game-btn" id="btn-menu-ranking" style="flex:1; font-size:0.78rem; padding:9px 4px;">🏆 RANKING</button>
-          <button class="game-btn" id="btn-menu-settings" style="flex:1; font-size:0.78rem; padding:9px 4px;">⚙️ OPÇÕES</button>
+          <button class="game-btn" id="btn-menu-missions" style="flex:1; font-size:0.78rem; padding:9px 4px;">MISSÕES</button>
+          <button class="game-btn" id="btn-menu-ranking" style="flex:1; font-size:0.78rem; padding:9px 4px;">RANKING</button>
+          <button class="game-btn" id="btn-menu-settings" style="flex:1; font-size:0.78rem; padding:9px 4px;">OPÇÕES</button>
         </div>
+        <button class="game-btn danger sm" id="btn-menu-exit" style="margin-top:4px; opacity:0.85;">SAIR DO JOGO</button>
       </div>
     </div>
 
@@ -674,6 +691,18 @@
         <p class="subtitle">Seus melhores recordes registrados</p>
         <div class="modal-scroll-body" id="ranking-container"></div>
         <button class="game-btn primary" id="btn-close-ranking" style="margin-top:12px;">⬅ VOLTAR AO MENU</button>
+      </div>
+    </div>
+
+        <!-- MODAL CONFIRMAÇÃO DE SAIR DO JOGO -->
+    <div id="exit-confirm-modal" class="screen-overlay hidden" style="z-index: 99;">
+      <div class="modal-card" style="width:100%; max-width:300px; text-align:center; padding:18px;">
+        <h3 style="color:#f43f5e; font-size:1.15rem; margin-bottom:6px;">FECHAR O JOGO</h3>
+        <p style="font-size:0.85rem; color:#cbd5e1; margin-bottom:16px;">Deseja fechar o jogo?</p>
+        <div style="display:flex; gap:8px;">
+          <button class="game-btn danger sm" id="btn-confirm-exit" style="flex:1;">SIM, SAIR</button>
+          <button class="game-btn sm" id="btn-cancel-exit" style="flex:1;">NÃO</button>
+        </div>
       </div>
     </div>
 
@@ -2677,6 +2706,7 @@
         window.addEventListener('resize', () => this.resize());
         this.setupDOM();
         this.setupInputs();
+        this.initMenuSimulation();
       }
 
       resize() {
@@ -2834,6 +2864,90 @@
         this._toastTimeout = setTimeout(() => {
           toast.classList.remove('show');
         }, 2200);
+      }
+
+            initMenuSimulation() {
+        this.rebuildArenaObjects();
+        this.demoP1 = new Gun(true, GUN_CATALOG[0]);
+        this.demoP2 = new Gun(false, GUN_CATALOG[1]);
+        this.demoP1.reset(this.width * 0.28, this.height * 0.4, 999);
+        this.demoP2.reset(this.width * 0.72, this.height * 0.4, 999);
+        this.bullets = [];
+        this.particles = [];
+        this.floatTexts = [];
+      }
+
+      updateMenuSimulation(dt = 1.0) {
+        if (!this.demoP1 || !this.demoP2) {
+          this.initMenuSimulation();
+          return;
+        }
+
+        // IA automática das duas armas de demonstração
+        const p1 = this.demoP1;
+        const p2 = this.demoP2;
+
+        const updateDemoGun = (gun, target) => {
+          gun.update(this, dt * 0.85); // ligeiramente mais lento/cinematográfico
+          const dx = target.x - gun.x;
+          const dy = target.y - gun.y;
+          const targetAngle = Math.atan2(dy, dx);
+          let diff = (targetAngle - gun.angle) % (Math.PI * 2);
+          if (diff < -Math.PI) diff += Math.PI * 2;
+          if (diff > Math.PI) diff -= Math.PI * 2;
+
+          if (Math.abs(diff) < 0.45 || gun.y > this.height * 0.7) {
+            gun.shoot(this);
+          }
+          if (gun.y > this.height - 40) {
+            gun.vy = -7.5;
+          }
+        };
+
+        updateDemoGun(p1, p2);
+        updateDemoGun(p2, p1);
+
+        for (let i = this.bullets.length - 1; i >= 0; i--) {
+          const b = this.bullets[i];
+          b.update(this, dt * 0.85);
+          if (!b.alive) {
+            this.bullets.splice(i, 1);
+            continue;
+          }
+
+          // Colisão com as armas demo
+          [p1, p2].forEach(target => {
+            const dx = b.x - target.x;
+            const dy = b.y - target.y;
+            if (Math.sqrt(dx * dx + dy * dy) < target.radius + b.radius) {
+              target.takeDamage(1, this);
+              target.hp = 999; // mantêm-se vivas indefinidamente
+              b.alive = false;
+            }
+          });
+          if (!b.alive) this.bullets.splice(i, 1);
+        }
+
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          this.particles[i].update(dt);
+          if (this.particles[i].life <= 0) this.particles.splice(i, 1);
+        }
+      }
+
+      drawMenuSimulation() {
+        this.initMenuSimulation();
+
+        // Trampolim inferior azul
+        this.ctx.fillStyle = '#0284c7';
+        this.ctx.fillRect(0, this.height - 8, this.width, 8);
+
+        this.barriers.forEach(b => b.draw(this.ctx));
+        this.barrels.forEach(b => b.draw(this.ctx));
+        this.bullets.forEach(b => b.draw(this.ctx));
+
+        if (this.demoP1) this.demoP1.draw(this.ctx);
+        if (this.demoP2) this.demoP2.draw(this.ctx);
+        this.particles.forEach(p => p.draw(this.ctx));
       }
 
       setupDOM() {
@@ -3045,6 +3159,32 @@
           e.stopPropagation();
           if (this.state === 'PLAYING' && this.player1) this.player1.useShield(this);
         };
+
+                // Botão SAIR DO JOGO e confirmação
+        const btnExit = document.getElementById('btn-menu-exit');
+        const modalExit = document.getElementById('exit-confirm-modal');
+        const btnConfirmExit = document.getElementById('btn-confirm-exit');
+        const btnCancelExit = document.getElementById('btn-cancel-exit');
+
+        if (btnExit && modalExit) {
+          btnExit.onclick = () => modalExit.classList.remove('hidden');
+          btnCancelExit.onclick = () => modalExit.classList.add('hidden');
+          btnConfirmExit.onclick = () => {
+            modalExit.classList.add('hidden');
+            // Fechamento nativo no Capacitor / Android ou fallback Web
+            try {
+              if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
+                window.Capacitor.Plugins.App.exitApp();
+              } else if (navigator && navigator.app && navigator.app.exitApp) {
+                navigator.app.exitApp();
+              } else {
+                window.close();
+              }
+            } catch(e) {
+              window.close();
+            }
+          };
+        }
 
         this.updateCoinDisplay();
       }
@@ -3515,6 +3655,8 @@
           document.getElementById('skills-action-bar').classList.add('hidden');
         }
 
+        this.demoP1 = null;
+        this.demoP2 = null;
         this.startRound(customRivalHp);
       }
 
@@ -4069,7 +4211,7 @@
         ['game-over-screen', 'pause-modal', 'hud', 'skills-action-bar', 'btn-pause', 'countdown-display', 'round-banner', 'replay-banner']
           .forEach(id => document.getElementById(id).classList.add('hidden'));
         document.getElementById('main-menu').classList.remove('hidden');
-        this.ctx.clearRect(0, 0, this.width, this.height);
+        this.initMenuSimulation();
         this.updateCoinDisplay();
       }
 
@@ -4248,7 +4390,7 @@
           this.ctx.translate(rx, ry);
         }
 
-        this.ctx.clearRect(0, 0, this.width, this.height);
+        this.initMenuSimulation();
 
         if (this.state === 'SLOWMO_REPLAY' && this.replayBuffer.length > 1) {
           this.drawReplay();
@@ -4292,15 +4434,19 @@
         const real = Math.min(now - this.lastFrameTime, 50);
         this.lastFrameTime = now;
 
-        if (this.state !== 'PAUSED') {
+        if (this.state === 'MENU') {
+          const dt = real / 16.666;
+          this.updateMenuSimulation(dt);
+          this.drawMenuSimulation();
+        } else if (this.state !== 'PAUSED') {
           const dt = real / 16.666;
           const steps = Math.max(1, Math.ceil(dt));
           const h = dt / steps;
           for (let i = 0; i < steps; i++) this.update(h);
           this.tickState(real);
           this.updateHUD();
+          this.draw();
         }
-        if (this.state !== 'MENU') this.draw();
         requestAnimationFrame(() => this.loop());
       }
     }

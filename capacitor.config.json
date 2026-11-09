@@ -1,6 +1,6 @@
 {
-  "appId": "com.williamtotaro.gunduelarena",
-  "appName": "Gun Duel Arena",
+  "appId": "com.williamtotaro.aeroguns",
+  "appName": "AeroGuns",
   "webDir": "www",
   "bundledWebRuntime": false,
   "server": {

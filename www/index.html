@@ -611,11 +611,11 @@
       <h1>GUN DUEL</h1>
       <p class="subtitle">BATALHA AÉREA DE RECUO • COMPLETO</p>
       <div class="btn-group">
-        <button class="game-btn primary" id="btn-menu-solo">🎮 DUELO SOLO (PERFIS IA)</button>
-        <button class="game-btn" id="btn-menu-campaign" style="border-color:#f43f5e; color:#fda4af;">👑 MODO CAMPANHA (5 CHEFES)</button>
-        <button class="game-btn" id="btn-menu-survival" style="border-color:#10b981; color:#a7f3d0;">🌊 SOBREVIVÊNCIA POR ONDAS</button>
-        <button class="game-btn" id="btn-menu-training" style="border-color:#eab308; color:#fef08a;">🎯 MODO TREINO (ALVOS)</button>
-        <button class="game-btn accent" id="btn-menu-online" style="border-color:#38bdf8; background:linear-gradient(135deg, #0369a1, #1d4ed8);">🌐 MULTIPLAYER ONLINE (P2P CUSTO ZERO)</button>
+        <button class="game-btn primary" id="btn-menu-solo">🎮 DUELO SOLO</button>
+        <button class="game-btn" id="btn-menu-campaign" style="border-color:#f43f5e; color:#fda4af;">👑 MODO CAMPANHA</button>
+        <button class="game-btn" id="btn-menu-survival" style="border-color:#10b981; color:#a7f3d0;">🌊 SOBREVIVÊNCIA</button>
+        <button class="game-btn" id="btn-menu-training" style="border-color:#eab308; color:#fef08a;">🎯 MODO TREINO</button>
+        <button class="game-btn accent" id="btn-menu-online" style="border-color:#38bdf8; background:linear-gradient(135deg, #0369a1, #1d4ed8);">🌐 MULTIPLAYER ONLINE</button>
         <button class="game-btn" id="btn-menu-local">👥 1 VS 1 LOCAL</button>
         <button class="game-btn warning" id="btn-menu-shop">🛒 ARSENAL & LOJA</button>
         <div style="display:flex; gap:6px;">
@@ -638,9 +638,9 @@
         </div>
         <span style="font-size:0.75rem; color:#94a3b8; font-weight:800; margin-top:4px;">PERFIL TÁTICO DA IA:</span>
         <div class="btn-group" style="max-width:100%;">
-          <button class="game-btn" data-profile="AGGRESSIVE">🔥 AGRESSIVA (Avanço & Dash)</button>
-          <button class="game-btn primary" data-profile="DEFENSIVE">🛡️ DEFENSIVA (Escudo & Distância)</button>
-          <button class="game-btn accent" data-profile="UNPREDICTABLE">🎲 IMPREVISÍVEL (Ricochete & Caos)</button>
+          <button class="game-btn" data-profile="AGGRESSIVE">🔥 AGRESSIVA</button>
+          <button class="game-btn primary" data-profile="DEFENSIVE">🛡️ DEFENSIVA</button>
+          <button class="game-btn accent" data-profile="UNPREDICTABLE">🎲 IMPREVISÍVEL</button>
         </div>
         <button class="game-btn" id="btn-back-solo" style="margin-top:8px;">⬅ VOLTAR</button>
       </div>
@@ -660,7 +660,7 @@
           <div class="coins-badge">🪙 <span id="missions-coins-badge">0</span></div>
         </div>
         <div class="modal-tabs">
-          <button class="modal-tab-btn active" id="tab-daily-btn">📅 DIÁRIAS (HOJE)</button>
+          <button class="modal-tab-btn active" id="tab-daily-btn">📅 DIÁRIAS</button>
           <button class="modal-tab-btn" id="tab-achieve-btn">🏅 CONQUISTAS</button>
         </div>
         <div class="modal-scroll-body" id="missions-list-container"></div>
@@ -741,7 +741,7 @@
         <div id="online-choice-box" class="btn-group" style="max-width:100%;">
           <button class="game-btn primary" id="btn-create-room">👑 CRIAR SALA PRIVADA</button>
           <div style="display:flex; gap:6px; margin-top:4px;">
-            <input type="text" id="join-room-input" placeholder="CÓDIGO (EX: 4821)" maxlength="6"
+            <input type="text" id="join-room-input" placeholder="CÓDIGO" maxlength="6"
                    style="flex:1; padding:10px; border-radius:10px; border:1px solid #334155; background:#1e293b; color:#fff; font-weight:800; text-align:center; text-transform:uppercase; font-size:0.95rem;">
             <button class="game-btn accent" id="btn-join-room" style="padding:10px 16px;">ENTRAR</button>
           </div>
@@ -782,6 +782,13 @@
         <button class="game-btn warning" id="btn-pause-restart">↻ REINICIAR PARTIDA</button>
         <button class="game-btn" id="btn-pause-menu">MENU PRINCIPAL</button>
       </div>
+    </div>
+
+        <!-- MODAL ESCOLHA DE ARMA GRATUITA (SOBREVIVÊNCIA) -->
+    <div id="survival-reward-modal" class="screen-overlay hidden">
+      <h1 style="color:#10b981; font-size:1.8rem;">REFORÇO DE ARSENAL!</h1>
+      <p class="subtitle">Escolha uma arma gratuita para as próximas ondas:</p>
+      <div id="survival-cards-box" style="display:flex; flex-direction:column; gap:10px; width:100%; max-width:320px; margin-bottom:14px;"></div>
     </div>
 
     <div id="game-over-screen" class="screen-overlay hidden">
@@ -1069,7 +1076,8 @@
       { id: 2, title: 'Mestre Arquiteto', trickName: 'Fortificação Aérea', trickDesc: 'Ergue barreiras temporárias no centro a cada 6s.', hp: 14, color: '#a855f7', detail: '#7e22ce', gunId: 'saw', profile: 'DEFENSIVE', reward: 120 },
       { id: 3, title: 'Dinamitador Louco', trickName: 'Chuva de Bombas', trickDesc: 'Dispara foguetes pesados e arremessa granadas sem parar.', hp: 15, color: '#eab308', detail: '#a16207', gunId: 'rocket', profile: 'UNPREDICTABLE', reward: 160 },
       { id: 4, title: 'Franco Gravitacional', trickName: 'Vórtice Atrator', trickDesc: 'Arma gravitacional puxando você para o abismo e barreiras.', hp: 16, color: '#06b6d4', detail: '#0e7490', gunId: 'gravity', profile: 'AGGRESSIVE', reward: 200 },
-      { id: 5, title: 'Lorde Supremo da Arena', trickName: 'Escudo Supremo & Lasers', trickDesc: 'Escudos periódicos invulneráveis e disparos duplos velozes.', hp: 20, color: '#ef4444', detail: '#991b1b', gunId: 'laser', profile: 'UNPREDICTABLE', reward: 300 }
+      { id: 5, title: 'Lorde Supremo da Arena', trickName: 'Escudo Supremo & Lasers', trickDesc: 'Escudos periódicos invulneráveis e disparos duplos velozes.', hp: 20, color: '#ef4444', detail: '#991b1b', gunId: 'laser', profile: 'UNPREDICTABLE', reward: 300 },
+      { id: 6, title: 'Franco-Atirador Sombra', trickName: 'Camuflagem Fantasma', trickDesc: 'Fica semitransparente após o dash e usa disparos penetrantes.', hp: 22, color: '#6366f1', detail: '#4338ca', gunId: 'laser', profile: 'AGGRESSIVE', reward: 400 }
     ];
 
     const MISSION_POOL = [
@@ -1388,7 +1396,8 @@
           : COSMETIC_TRAILS[0];
 
         const isCrit = Math.random() < stats.critChance;
-        const finalDamage = stats.baseDamage + (isCrit ? 1 : 0);
+        // Acerto crítico tira 3 pontos do adversário
+        const finalDamage = isCrit ? 3 : stats.baseDamage;
 
         if (this.config.type === 'shotgun') {
           for (let i = -1; i <= 1; i++) {
@@ -1829,7 +1838,7 @@
     }
 
     class Bullet {
-      constructor(x, y, angle, speed, isPlayer, gunType, damage, trailConfig, isCrit = false) {
+      constructor(x, y, angle, speed, isPlayer, gunType, damage, trailConfig, isCrit = false, charged = false) {
         this.x = x;
         this.y = y;
         this.vx = Math.cos(angle) * speed;
@@ -1840,10 +1849,14 @@
         this.damage = damage;
         this.trailConfig = trailConfig || COSMETIC_TRAILS[0];
         this.isCrit = isCrit;
-        this.radius = gunType === 'rocket' ? 6 : (gunType === 'saw' ? 8 : 4);
+        this.charged = charged;
+        this.radius = gunType === 'rocket' ? 6 : (gunType === 'saw' ? 7.5 : (charged ? 7 : 4));
         this.alive = true;
         this.lifeTime = 0;
-        this.bouncesLeft = gunType === 'saw' ? 3 : 0;
+        // Evento aleatório: 20% de chance para qualquer tiro ricochetear 3 vezes, ou se for a serra
+        const randomBounce = (Math.random() < 0.20);
+        this.bouncesLeft = (gunType === 'saw' || randomBounce) ? 3 : 0;
+        this.isRandomBounce = randomBounce && (gunType !== 'saw');
       }
 
       update(arena, dt = 1.0) {
@@ -1912,13 +1925,13 @@
           ctx.strokeStyle = '#38bdf8';
           ctx.lineWidth = 1.5;
           ctx.beginPath();
-          ctx.arc(0, 0, 58, 0, Math.PI * 2);
+          ctx.arc(0, 0, 7.5, 0, Math.PI * 2);
           ctx.fill();
           ctx.stroke();
           ctx.fillStyle = '#64748b';
           for (let i = 0; i < 6; i++) {
             ctx.rotate(Math.PI / 3);
-            ctx.fillRect(6, -2, 4, 4);
+            ctx.fillRect(5.5, -1.5, 3, 3);
           }
         } else if (this.gunType === 'rocket') {
           ctx.fillStyle = '#ef4444';
@@ -1935,15 +1948,24 @@
           ctx.shadowBlur = 10;
           ctx.fillStyle = '#c084fc';
           ctx.beginPath();
-          ctx.arc(0, 0, 58, 0, Math.PI * 2);
+          ctx.arc(0, 0, 6, 0, Math.PI * 2);
           ctx.fill();
         } else if (this.gunType === 'grenade') {
           ctx.fillStyle = '#475569';
           ctx.beginPath();
-          ctx.arc(0, 0, 58, 0, Math.PI * 2);
+          ctx.arc(0, 0, 6, 0, Math.PI * 2);
           ctx.fill();
           ctx.fillStyle = '#f59e0b';
           ctx.fillRect(-2, -8, 4, 4);
+        } else if (this.charged) {
+          ctx.fillStyle = '#38bdf8';
+          ctx.shadowColor = '#38bdf8';
+          ctx.shadowBlur = 12;
+          ctx.beginPath();
+          ctx.arc(0, 0, 7, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#fff';
+          ctx.fillRect(-3, -2, 6, 4);
         } else {
           ctx.fillStyle = this.trailConfig.color || '#fef08a';
           ctx.beginPath();
@@ -1958,6 +1980,109 @@
           ctx.fill();
         }
 
+        ctx.restore();
+      }
+    }
+
+        class MovingBarrier extends Barrier {
+      constructor(x, y, w, h, rangeX = 40, rangeY = 0, speed = 0.03) {
+        super(x, y, w, h);
+        this.baseX = x;
+        this.baseY = y;
+        this.rangeX = rangeX;
+        this.rangeY = rangeY;
+        this.speed = speed;
+        this.t = Math.random() * Math.PI * 2;
+      }
+      update(dt = 1.0) {
+        this.t += this.speed * dt;
+        this.x = this.baseX + Math.sin(this.t) * this.rangeX;
+        this.y = this.baseY + Math.cos(this.t) * this.rangeY;
+      }
+      draw(ctx) {
+        ctx.save();
+        ctx.fillStyle = '#0f766e';
+        ctx.strokeStyle = '#2dd4bf';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(this.x, this.y, this.w, this.h, 6);
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+
+    class GlassBarrier extends Barrier {
+      constructor(x, y, w, h, hp = 3) {
+        super(x, y, w, h);
+        this.hp = hp;
+        this.maxHp = hp;
+        this.isGlass = true;
+      }
+      checkBulletCollision(bullet, arena) {
+        if (bullet.x >= this.x && bullet.x <= this.x + this.w &&
+            bullet.y >= this.y && bullet.y <= this.y + this.h) {
+          this.hp -= bullet.damage;
+          arena.createSparkParticles(bullet.x, bullet.y);
+          if (this.hp <= 0) {
+            arena.createGlassDebris(this.x + this.w / 2, this.y + this.h / 2);
+            AudioManager.playExplode();
+          }
+          return true;
+        }
+        return false;
+      }
+      draw(ctx) {
+        if (this.hp <= 0) return;
+        ctx.save();
+        ctx.globalAlpha = Math.max(0.3, this.hp / this.maxHp);
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.25)';
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(this.x, this.y, this.w, this.h, 5);
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+
+    class JumpVortex {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.radius = 20;
+        this.t = 0;
+      }
+      update(dt = 1.0, arena) {
+        this.t += 0.06 * dt;
+        [arena.player1, arena.player2].forEach(gun => {
+          if (!gun) return;
+          const dx = gun.x - this.x;
+          const dy = gun.y - this.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < this.radius + gun.radius) {
+            gun.vy = -12.5; // Grande impulso para cima
+            gun.vx += (dx > 0 ? 4 : -4);
+            arena.createBounceParticles(this.x, this.y);
+            AudioManager.playBounce();
+            arena.createFloatText(this.x, this.y - 20, 'VÓRTICE!', '#38bdf8');
+          }
+        });
+      }
+      draw(ctx) {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.t);
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius + Math.sin(this.t * 2) * 3, 0, Math.PI * 1.6);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius * 0.5, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.4)';
+        ctx.fill();
         ctx.restore();
       }
     }
@@ -2683,6 +2808,15 @@
           if (Math.random() > 0.5) {
             this.barrels.push(new Barrel(W * 0.1 + tw / 2 - 13, H * 0.35 - 32));
           }
+        }
+
+        // Inclusão de elementos dinâmicos: Plataforma Móvel, Vidro e Vórtice
+        if (chosen === 'SPLIT_ISLANDS') {
+          this.barriers.push(new MovingBarrier(W * 0.38, H * 0.45, 75, 16, 35, 0, 0.025));
+        } else if (chosen === 'CENTRAL_FORTRESS') {
+          this.vortices = [new JumpVortex(W * 0.5, H * 0.68)];
+        } else {
+          this.barriers.push(new GlassBarrier((W - 70) / 2, H * 0.42, 70, 14, 3));
         }
 
         // Se for o chefe Dinamitador na campanha, adiciona TNTs extras!
@@ -3869,13 +4003,22 @@
             if (this.currentWave >= 5) State.unlockAchievement('wave_survivor', 'Sobrevivente Heroico', 'Alcançou a Onda 5 na Sobrevivência', 100);
             State.save();
 
-            const waveGuns = ['pistol', 'saw', 'magnum', 'rifle', 'rocket', 'laser'];
-            const gunIdx = Math.min(waveGuns.length - 1, Math.floor((this.currentWave - 1) / 2));
-            this.player2.config = GUN_CATALOG.find(g => g.id === waveGuns[gunIdx]) || GUN_CATALOG[0];
-            this.aiProfile = this.currentWave % 2 === 0 ? 'AGGRESSIVE' : 'UNPREDICTABLE';
-            document.getElementById('rival-label').innerText = `ONDA ${this.currentWave}`;
-            document.getElementById('mode-detail-badge').innerText = `ONDA ${this.currentWave}`;
-            this.startRound(8 + this.currentWave * 2);
+            const proceed = () => {
+              const waveGuns = ['pistol', 'saw', 'magnum', 'rifle', 'rocket', 'laser'];
+              const gunIdx = Math.min(waveGuns.length - 1, Math.floor((this.currentWave - 1) / 2));
+              this.player2.config = GUN_CATALOG.find(g => g.id === waveGuns[gunIdx]) || GUN_CATALOG[0];
+              this.aiProfile = this.currentWave % 2 === 0 ? 'AGGRESSIVE' : 'UNPREDICTABLE';
+              document.getElementById('rival-label').innerText = `ONDA ${this.currentWave}`;
+              document.getElementById('mode-detail-badge').innerText = `ONDA ${this.currentWave}`;
+              this.startRound(8 + this.currentWave * 2);
+            };
+
+            // Chance de upgrade gratuito entre ondas
+            if (Math.random() < 0.65) {
+              this.showSurvivalReward(proceed);
+            } else {
+              proceed();
+            }
           } else {
             this.endMatch(false);
           }
@@ -3976,10 +4119,17 @@
 
         for (let i = this.barriers.length - 1; i >= 0; i--) {
           const b = this.barriers[i];
+          if (b.update) b.update(dt);
           if (b.isTemp) {
             b.life -= dt;
             if (b.life <= 0) this.barriers.splice(i, 1);
           }
+          if (b.isGlass && b.hp <= 0) {
+            this.barriers.splice(i, 1);
+          }
+        }
+        if (this.vortices) {
+          this.vortices.forEach(v => v.update(dt, this));
         }
 
         if (this.state === 'PLAYING') {
@@ -4123,6 +4273,7 @@
         this.ctx.fillRect(0, this.height - 8, this.width, 8);
 
         this.barriers.forEach(b => b.draw(this.ctx));
+        if (this.vortices) this.vortices.forEach(v => v.draw(this.ctx));
         this.barrels.forEach(b => b.draw(this.ctx));
         this.targets.forEach(t => t.draw(this.ctx));
         this.bullets.forEach(b => b.draw(this.ctx));

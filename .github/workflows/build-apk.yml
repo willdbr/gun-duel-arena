@@ -84,5 +84,5 @@ jobs:
       - name: Disponibilizar APK para Download
         uses: actions/upload-artifact@v4
         with:
-          name: GunDuelArena-debug.apk
+          name: AeroGuns-3.apk
           path: android/app/build/outputs/apk/debug/app-debug.apk

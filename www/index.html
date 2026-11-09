@@ -90,24 +90,24 @@
     .btn-group {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
       width: 100%;
-      max-width: 320px;
+      max-width: 310px;
     }
     button.game-btn {
       background: linear-gradient(135deg, #1e293b, #0f172a);
       border: 1px solid #334155;
       color: #f8fafc;
-      font-size: 0.92rem;
+      font-size: 0.82rem;
       font-weight: 700;
-      padding: 11px 16px;
-      border-radius: 12px;
+      padding: 8px 12px;
+      border-radius: 10px;
       cursor: pointer;
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 8px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+      gap: 6px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.35);
       transition: transform 0.1s, border-color 0.2s, background 0.2s;
     }
     button.game-btn:active {
@@ -2741,6 +2741,7 @@
         this.barriers = [];
         this.barrels = [];
         this.targets = [];
+        this.vortices = [];
         if (this.height <= 0 || this.width <= 0) return;
 
         if (this.gameMode === 'TRAINING') {
@@ -2751,119 +2752,42 @@
           return;
         }
 
-        // ================= GERAÇÃO PROCEDURAL / ALEATÓRIA DE MAPAS =================
+        // ================= GERAÇÃO PROCEDURAL: APENAS UMA BARREIRA =================
         const W = this.width;
         const H = this.height;
 
-        // Escolhe aleatoriamente um arquétipo dinâmico de arena
-        const archetypes = ['SPLIT_ISLANDS', 'VERTICAL_BUNKER', 'FLOATING_CROSS', 'STAGGERED_PLATFORMS', 'CENTRAL_FORTRESS'];
-        const chosen = archetypes[Math.floor(Math.random() * archetypes.length)];
-
+        // Largura moderada para NUNCA bloquear as passagens laterais
         const clamp = (val, min, max) => Math.max(min, Math.min(max, val));
+        const barrierW = clamp(W * (0.24 + Math.random() * 0.1), 80, 130);
+        const barrierH = 16;
 
-        if (chosen === 'SPLIT_ISLANDS') {
-          // Duas ilhas suspensas com alturas alternadas e vão central para duelos verticais
-          const w1 = clamp(W * (0.2 + Math.random() * 0.08), 65, 110);
-          const w2 = clamp(W * (0.2 + Math.random() * 0.08), 65, 110);
-          const y1 = H * (0.38 + (Math.random() - 0.5) * 0.1);
-          const y2 = H * (0.54 + (Math.random() - 0.5) * 0.1);
+        // Posição Y na zona média (entre 42% e 58% da altura)
+        const barrierY = H * (0.42 + Math.random() * 0.16);
 
-          this.barriers.push(new Barrier(W * 0.1, y1, w1, 16));
-          this.barriers.push(new Barrier(W * 0.9 - w2, y2, w2, 16));
+        // Estilos aleatórios da barreira única:
+        const types = ['CENTER_FIXED', 'CENTER_MOVING', 'GLASS_DESTRUCTIBLE'];
+        const chosen = types[Math.floor(Math.random() * types.length)];
 
-          // Barril no vão ou sobre a ilha mais alta
-          if (Math.random() > 0.3) {
-            this.barrels.push(new Barrel(W * 0.1 + w1 / 2 - 13, y1 - 32));
-          }
-          if (Math.random() > 0.4) {
-            this.barrels.push(new Barrel(W * 0.9 - w2 / 2 - 13, y2 - 32));
-          }
-
-        } else if (chosen === 'VERTICAL_BUNKER') {
-          // Coberturas laterais simétricas + barreira intermediária
-          const bw = clamp(W * 0.26, 75, 120);
-          const sideW = clamp(W * 0.18, 55, 80);
-          const yCenter = H * 0.5;
-          const ySide = H * 0.34;
-
-          this.barriers.push(new Barrier((W - bw) / 2, yCenter, bw, 18));
-          this.barriers.push(new Barrier(W * 0.08, ySide, sideW, 16));
-          this.barriers.push(new Barrier(W * 0.92 - sideW, ySide, sideW, 16));
-
-          this.barrels.push(new Barrel((W - 26) / 2, yCenter - 32));
-          if (Math.random() > 0.5) {
-            this.barrels.push(new Barrel(W * 0.08 + sideW / 2 - 13, ySide - 32));
-          }
-
-        } else if (chosen === 'FLOATING_CROSS') {
-          // 3 plataformas escalonadas em formato de pirâmide/cruz
-          const pw = clamp(W * 0.22, 60, 95);
-          const yTop = H * 0.36;
-          const yBot1 = H * 0.56;
-          const yBot2 = H * 0.56;
-
-          this.barriers.push(new Barrier((W - pw) / 2, yTop, pw, 16));
-          this.barriers.push(new Barrier(W * 0.12, yBot1, pw, 16));
-          this.barriers.push(new Barrier(W * 0.88 - pw, yBot2, pw, 16));
-
-          this.barrels.push(new Barrel((W - 26) / 2, yTop - 32));
-
-        } else if (chosen === 'STAGGERED_PLATFORMS') {
-          // Plataformas assimétricas dinâmicas
-          const pCount = 3 + Math.floor(Math.random() * 2); // 3 ou 4 barreiras
-          for (let i = 0; i < pCount; i++) {
-            const pw = clamp(W * (0.18 + Math.random() * 0.1), 58, 95);
-            const px = (i % 2 === 0) 
-              ? W * 0.08 + Math.random() * (W * 0.15) 
-              : W * 0.55 + Math.random() * (W * 0.15);
-            const py = H * (0.32 + (i / pCount) * 0.32) + (Math.random() - 0.5) * 15;
-            this.barriers.push(new Barrier(clamp(px, 15, W - pw - 15), clamp(py, 80, H - 90), pw, 16));
-          }
-          // 1 ou 2 barris aleatórios em plataformas
-          const bIdx = Math.floor(Math.random() * this.barriers.length);
-          const bar = this.barriers[bIdx];
-          this.barrels.push(new Barrel(bar.x + bar.w / 2 - 13, bar.y - 32));
-
+        if (chosen === 'CENTER_MOVING') {
+          // Barreira móvel que oscila suavemente no centro
+          this.barriers.push(new MovingBarrier((W - barrierW) / 2, barrierY, barrierW, barrierH, 30, 0, 0.025));
+        } else if (chosen === 'GLASS_DESTRUCTIBLE') {
+          // Barreira de vidro que se quebra com tiros
+          this.barriers.push(new GlassBarrier((W - barrierW) / 2, barrierY, barrierW, barrierH, 3));
         } else {
-          // CENTRAL_FORTRESS: grande plataforma no centro e plataformas de topo
-          const fw = clamp(W * 0.35, 100, 160);
-          const fy = H * 0.52;
-          this.barriers.push(new Barrier((W - fw) / 2, fy, fw, 20));
-
-          const tw = clamp(W * 0.18, 55, 80);
-          this.barriers.push(new Barrier(W * 0.1, H * 0.35, tw, 16));
-          this.barriers.push(new Barrier(W * 0.9 - tw, H * 0.35, tw, 16));
-
-          this.barrels.push(new Barrel((W - 26) / 2, fy - 32));
-          if (Math.random() > 0.5) {
-            this.barrels.push(new Barrel(W * 0.1 + tw / 2 - 13, H * 0.35 - 32));
-          }
+          // Barreira sólida central clássica
+          // Pequena variação horizontal mantendo corredor de passagem de pelo menos 70px em cada lado
+          const maxOffset = (W - barrierW) / 2 - 60;
+          const offsetX = (Math.random() - 0.5) * Math.max(0, maxOffset);
+          const posX = (W - barrierW) / 2 + offsetX;
+          this.barriers.push(new Barrier(posX, barrierY, barrierW, barrierH));
         }
 
-        // Inclusão de elementos dinâmicos: Plataforma Móvel, Vidro e Vórtice
-        if (chosen === 'SPLIT_ISLANDS') {
-          this.barriers.push(new MovingBarrier(W * 0.38, H * 0.45, 75, 16, 35, 0, 0.025));
-        } else if (chosen === 'CENTRAL_FORTRESS') {
-          this.vortices = [new JumpVortex(W * 0.5, H * 0.68)];
-        } else {
-          this.barriers.push(new GlassBarrier((W - 70) / 2, H * 0.42, 70, 14, 3));
+        // Adiciona exatamente 1 barril de TNT posicionado sobre a barreira única
+        const mainBar = this.barriers[0];
+        if (mainBar) {
+          this.barrels.push(new Barrel(mainBar.x + (mainBar.w - 26) / 2, mainBar.y - 32));
         }
-
-        // Se for o chefe Dinamitador na campanha, adiciona TNTs extras!
-        if (this.gameMode === 'CAMPAIGN' && this.currentBossIndex === 2) {
-          this.barrels.push(new Barrel(W * 0.18, H * 0.42));
-          this.barrels.push(new Barrel(W * 0.82 - 26, H * 0.42));
-        }
-      }
-
-      showToast(text) {
-        const toast = document.getElementById('toast-notification');
-        toast.innerText = text;
-        toast.classList.add('show');
-        clearTimeout(this._toastTimeout);
-        this._toastTimeout = setTimeout(() => {
-          toast.classList.remove('show');
-        }, 2200);
       }
 
             initMenuSimulation() {
@@ -2935,9 +2859,11 @@
       }
 
       drawMenuSimulation() {
-        this.initMenuSimulation();
+        this.ctx.clearRect(0, 0, this.width, this.height);
 
         // Trampolim inferior azul
+        this.ctx.fillStyle = 'rgba(56, 189, 248, 0.22)';
+        this.ctx.fillRect(0, this.height - 14, this.width, 6);
         this.ctx.fillStyle = '#0284c7';
         this.ctx.fillRect(0, this.height - 8, this.width, 8);
 
@@ -4390,7 +4316,7 @@
           this.ctx.translate(rx, ry);
         }
 
-        this.initMenuSimulation();
+        this.ctx.clearRect(0, 0, this.width, this.height);
 
         if (this.state === 'SLOWMO_REPLAY' && this.replayBuffer.length > 1) {
           this.drawReplay();

@@ -52,20 +52,69 @@
       transition: opacity 0.2s ease;
     }
     #main-menu {
-      justify-content: flex-start;
-      padding-top: max(22px, env(safe-area-inset-top, 22px));
-      background: rgba(7, 11, 18, 0.78);
-      backdrop-filter: blur(3px);
-      -webkit-backdrop-filter: blur(3px);
+      justify-content: space-between;
+      padding: max(20px, env(safe-area-inset-top, 20px)) 16px max(20px, env(safe-area-inset-bottom, 20px)) 16px;
+      background: radial-gradient(circle at center top, #1e293b 0%, #070b12 100%);
     }
-    #main-menu h1 {
+    .menu-header {
+      width: 100%;
+      text-align: center;
       margin-top: 4px;
+    }
+    .menu-header h1 {
       margin-bottom: 2px;
       font-size: 2.3rem;
+      letter-spacing: 3px;
     }
-    #main-menu p.subtitle {
-      margin-bottom: 12px;
+    .menu-header p.subtitle {
+      margin-bottom: 0;
       font-size: 0.78rem;
+      color: #94a3b8;
+      letter-spacing: 1px;
+    }
+    .menu-center {
+      width: 100%;
+      max-width: 340px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin: auto 0;
+    }
+    .menu-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+      width: 100%;
+    }
+    .menu-grid button.game-btn {
+      width: 100%;
+      padding: 10px 6px;
+      font-size: 0.78rem;
+      text-align: center;
+      justify-content: center;
+    }
+    .menu-sub-row {
+      display: flex;
+      gap: 6px;
+      width: 100%;
+    }
+    .menu-sub-row button.game-btn {
+      flex: 1;
+      font-size: 0.74rem;
+      padding: 8px 4px;
+    }
+    .menu-footer {
+      width: 100%;
+      max-width: 340px;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 4px;
+    }
+    .menu-footer button.game-btn {
+      width: 100%;
+      padding: 9px 12px;
+      font-size: 0.8rem;
+      letter-spacing: 1px;
     }
     .hidden {
       display: none !important;
@@ -624,22 +673,30 @@
     <button class="pause-btn hidden" id="btn-pause" aria-label="Pausar">⏸</button>
 
     <div id="main-menu" class="screen-overlay">
-      <h1>AEROGUNS</h1>
-      <p class="subtitle">BATALHA AÉREA DE RECUO</p>
-      <div class="btn-group">
-        <button class="game-btn primary" id="btn-menu-solo">DUELO SOLO</button>
-        <button class="game-btn" id="btn-menu-campaign" style="border-color:#f43f5e; color:#fda4af;">MODO CAMPANHA</button>
-        <button class="game-btn" id="btn-menu-survival" style="border-color:#10b981; color:#a7f3d0;">SOBREVIVÊNCIA</button>
-        <button class="game-btn" id="btn-menu-training" style="border-color:#eab308; color:#fef08a;">MODO TREINO</button>
-        <button class="game-btn accent" id="btn-menu-online" style="border-color:#38bdf8; background:linear-gradient(135deg, #0369a1, #1d4ed8);">MULTIPLAYER ONLINE</button>
-        <button class="game-btn" id="btn-menu-local">1 VS 1 LOCAL</button>
-        <button class="game-btn warning" id="btn-menu-shop">ARSENAL & LOJA</button>
-        <div style="display:flex; gap:6px;">
-          <button class="game-btn" id="btn-menu-missions" style="flex:1; font-size:0.78rem; padding:9px 4px;">MISSÕES</button>
-          <button class="game-btn" id="btn-menu-ranking" style="flex:1; font-size:0.78rem; padding:9px 4px;">RANKING</button>
-          <button class="game-btn" id="btn-menu-settings" style="flex:1; font-size:0.78rem; padding:9px 4px;">OPÇÕES</button>
+      <div class="menu-header">
+        <h1>AEROGUNS</h1>
+        <p class="subtitle">BATALHA AÉREA DE RECUO</p>
+      </div>
+
+      <div class="menu-center">
+        <div class="menu-grid">
+          <button class="game-btn primary" id="btn-menu-solo">DUELO SOLO</button>
+          <button class="game-btn" id="btn-menu-campaign" style="border-color:#f43f5e; color:#fda4af;">MODO CAMPANHA</button>
+          <button class="game-btn" id="btn-menu-survival" style="border-color:#10b981; color:#a7f3d0;">SOBREVIVÊNCIA</button>
+          <button class="game-btn" id="btn-menu-training" style="border-color:#eab308; color:#fef08a;">MODO TREINO</button>
+          <button class="game-btn accent" id="btn-menu-online" style="border-color:#38bdf8; background:linear-gradient(135deg, #0369a1, #1d4ed8);">ONLINE P2P</button>
+          <button class="game-btn" id="btn-menu-local">1 VS 1 LOCAL</button>
         </div>
-        <button class="game-btn danger sm" id="btn-menu-exit" style="margin-top:4px; opacity:0.85;">SAIR DO JOGO</button>
+        <button class="game-btn warning" id="btn-menu-shop" style="width:100%; padding:10px 12px; font-size:0.82rem;">ARSENAL & LOJA</button>
+        <div class="menu-sub-row">
+          <button class="game-btn" id="btn-menu-missions">MISSÕES</button>
+          <button class="game-btn" id="btn-menu-ranking">RANKING</button>
+          <button class="game-btn" id="btn-menu-settings">OPÇÕES</button>
+        </div>
+      </div>
+
+      <div class="menu-footer">
+        <button class="game-btn danger sm" id="btn-menu-exit">SAIR DO JOGO</button>
       </div>
     </div>
 
@@ -2706,7 +2763,6 @@
         window.addEventListener('resize', () => this.resize());
         this.setupDOM();
         this.setupInputs();
-        this.initMenuSimulation();
       }
 
       resize() {
@@ -2792,97 +2848,7 @@
 
             initMenuSimulation() {
         this.rebuildArenaObjects();
-        this.demoP1 = new Gun(true, GUN_CATALOG[0]);
-        this.demoP2 = new Gun(false, GUN_CATALOG[1]);
-        this.demoP1.reset(this.width * 0.28, this.height * 0.4, 999);
-        this.demoP2.reset(this.width * 0.72, this.height * 0.4, 999);
-        this.bullets = [];
-        this.particles = [];
-        this.floatTexts = [];
-        this.lastDemoShot = 0;
-      }
-
-      updateMenuSimulation(dt = 1.0) {
-        if (!this.demoP1 || !this.demoP2) {
-          this.initMenuSimulation();
-          return;
-        }
-
-        const p1 = this.demoP1;
-        const p2 = this.demoP2;
-        const now = performance.now();
-
-        // Controla cadência do demo para não poluir com tiros excessivos (máx 1 tiro a cada 550ms)
-        const updateDemoGun = (gun, target) => {
-          gun.update(this, dt);
-          const dx = target.x - gun.x;
-          const dy = target.y - gun.y;
-          const targetAngle = Math.atan2(dy, dx);
-          let diff = (targetAngle - gun.angle) % (Math.PI * 2);
-          if (diff < -Math.PI) diff += Math.PI * 2;
-          if (diff > Math.PI) diff -= Math.PI * 2;
-
-          if (now - this.lastDemoShot > 550 && (Math.abs(diff) < 0.45 || gun.y > this.height * 0.7)) {
-            if (this.bullets.length < 4) {
-              gun.shoot(this);
-              this.lastDemoShot = now;
-            }
-          }
-          if (gun.y > this.height - 40) {
-            gun.vy = -7.5;
-          }
-        };
-
-        updateDemoGun(p1, p2);
-        updateDemoGun(p2, p1);
-
-        for (let i = this.bullets.length - 1; i >= 0; i--) {
-          const b = this.bullets[i];
-          b.update(this, dt);
-          if (!b.alive) {
-            this.bullets.splice(i, 1);
-            continue;
-          }
-
-          [p1, p2].forEach(target => {
-            const dx = b.x - target.x;
-            const dy = b.y - target.y;
-            if (Math.sqrt(dx * dx + dy * dy) < target.radius + b.radius) {
-              target.hp = 999;
-              b.alive = false;
-            }
-          });
-          if (!b.alive) this.bullets.splice(i, 1);
-        }
-
-        // Limite rígido de partículas no menu (máximo 12)
-        if (this.particles.length > 12) this.particles.splice(0, this.particles.length - 12);
-        for (let i = this.particles.length - 1; i >= 0; i--) {
-          this.particles[i].update(dt);
-          if (this.particles[i].life <= 0) this.particles.splice(i, 1);
-        }
-      }
-
-      drawMenuSimulation() {
-        this.ctx.clearRect(0, 0, this.width, this.height);
-
-        // Trampolim inferior azul
-        this.ctx.fillStyle = 'rgba(56, 189, 248, 0.22)';
-        this.ctx.fillRect(0, this.height - 14, this.width, 6);
-        this.ctx.fillStyle = '#0284c7';
-        this.ctx.fillRect(0, this.height - 8, this.width, 8);
-
-        this.barriers.forEach(b => b.draw(this.ctx));
-        this.barrels.forEach(b => b.draw(this.ctx));
-        this.bullets.forEach(b => b.draw(this.ctx));
-
-        if (this.demoP1) this.demoP1.draw(this.ctx);
-        if (this.demoP2) this.demoP2.draw(this.ctx);
-        this.particles.forEach(p => p.draw(this.ctx));
-      }
-
-      setupDOM() {
-        document.getElementById('btn-menu-solo').onclick = () => {
+        th = () => {
           AudioManager.init();
           document.getElementById('main-menu').classList.add('hidden');
           document.getElementById('solo-config-menu').classList.remove('hidden');
@@ -3609,8 +3575,6 @@
           document.getElementById('skills-action-bar').classList.add('hidden');
         }
 
-        this.demoP1 = null;
-        this.demoP2 = null;
         this.startRound(customRivalHp);
       }
 
@@ -4185,7 +4149,7 @@
         ['game-over-screen', 'pause-modal', 'hud', 'skills-action-bar', 'btn-pause', 'countdown-display', 'round-banner', 'replay-banner']
           .forEach(id => document.getElementById(id).classList.add('hidden'));
         document.getElementById('main-menu').classList.remove('hidden');
-        this.initMenuSimulation();
+        this.ctx.clearRect(0, 0, this.width, this.height);
         this.updateCoinDisplay();
       }
 
@@ -4417,14 +4381,7 @@
         const elapsed = now - this.lastFrameTime;
         this.lastFrameTime = now;
 
-        if (this.state === 'MENU') {
-          // Otimização: simulação de menu atualiza a ~30 FPS para poupar bateria e CPU
-          this.menuFrameCount = (this.menuFrameCount || 0) + 1;
-          if (this.menuFrameCount % 2 === 0) {
-            this.updateMenuSimulation(1.0);
-            this.drawMenuSimulation();
-          }
-        } else if (this.state !== 'PAUSED') {
+        if (this.state !== 'MENU' && this.state !== 'PAUSED') {
           const real = Math.min(elapsed, 33.3);
           const dt = real / 16.666;
           // Sub-step com teto seguro de 2 passos no máximo

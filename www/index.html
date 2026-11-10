@@ -2846,9 +2846,18 @@
         }
       }
 
-            initMenuSimulation() {
-        this.rebuildArenaObjects();
-        th = () => {
+      showToast(text) {
+        const toast = document.getElementById('toast-notification');
+        toast.innerText = text;
+        toast.classList.add('show');
+        clearTimeout(this._toastTimeout);
+        this._toastTimeout = setTimeout(() => {
+          toast.classList.remove('show');
+        }, 2200);
+      }
+
+      setupDOM() {
+        document.getElementById('btn-menu-solo').onclick = () => {
           AudioManager.init();
           document.getElementById('main-menu').classList.add('hidden');
           document.getElementById('solo-config-menu').classList.remove('hidden');
